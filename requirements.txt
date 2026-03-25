@@ -7,7 +7,7 @@ google-generativeai==0.8.3
 
 # ── Phase 4 & 5: Backend API + MCP ───────────────────────────────────────────
 fastapi==0.115.6
-uvicorn[standard]==0.32.1
+uvicorn==0.32.1
 python-dotenv==1.0.1
 python-multipart==0.0.20
 
