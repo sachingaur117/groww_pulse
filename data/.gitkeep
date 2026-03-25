@@ -1,0 +1,5 @@
+# data/
+This directory stores CSV files output by the Play Store scraper.
+
+Files are named: reviews_YYYY-MM-DD.csv
+They are excluded from git (see .gitignore).

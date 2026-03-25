@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groww Pulse | PM Dashboard</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="top-nav">
+        <div class="logo">
+            <span class="groww-dot"></span>
+            <h1>Groww <span class="dim">Pulse</span></h1>
+        </div>
+        <div class="user-profile">PM Dashboard</div>
+    </header>
+
+    <main class="dashboard">
+        
+        <!-- Section A: Configuration -->
+        <section class="card config-panel">
+            <h2>Analysis Configuration</h2>
+            <div class="config-controls">
+                <div class="input-group">
+                    <label for="days-input">Scrape last X days</label>
+                    <input type="number" id="days-input" value="7" min="1" max="365">
+                </div>
+                
+                <div class="input-group">
+                    <label for="fee-select">Fee Scenario to Explain</label>
+                    <select id="fee-select">
+                        <option value="Exit Load">Exit Load</option>
+                        <option value="Expense Ratio / AMC Fee">Expense Ratio / AMC Fee</option>
+                        <option value="STT (Securities Transaction Tax)">STT (Securities Transaction Tax)</option>
+                        <option value="Stamp Duty">Stamp Duty</option>
+                        <option value="Capital Gains Tax (STCG/LTCG)">Capital Gains Tax (STCG/LTCG)</option>
+                        <option value="TDS on Dividends">TDS on Dividends</option>
+                    </select>
+                </div>
+                
+                <button id="run-btn" class="btn primary">Run Analysis</button>
+            </div>
+            <div id="status-bar" class="status-bar hidden"></div>
+        </section>
+
+        <div class="dashboard-grid">
+            
+            <!-- Section B: Weekly Pulse Report -->
+            <section class="pulse-section">
+                <div class="section-header">
+                    <h2>Weekly Product Pulse</h2>
+                    <span id="pulse-meta" class="meta-tag hidden">0 reviews</span>
+                </div>
+                
+                <div id="narrative-card" class="card narrative-card">
+                    <div class="placeholder-text">Run analysis to generate Pulse report...</div>
+                </div>
+
+                <div id="themes-grid" class="themes-grid hidden">
+                    <!-- Theme cards injected here by JS -->
+                </div>
+            </section>
+
+            <!-- Section C: Fee Explainer -->
+            <section class="fee-section">
+                <h2>Fee Explainer</h2>
+                <div id="fee-card" class="card fee-card">
+                    <div class="placeholder-text">Select fee and run analysis...</div>
+                </div>
+
+                <!-- Section D: Review & Approve / Export -->
+                <h2 class="mt-4">Export & Share</h2>
+                <div class="card export-card">
+                    <p class="text-sm dim mb-3">Review outputs above before exporting to MCP tools.</p>
+                    <div class="export-actions">
+                        <button id="export-gdoc-btn" class="btn outline" disabled>📄 Append to Google Doc</button>
+                        <button id="export-gmail-btn" class="btn outline" disabled>📧 Create Gmail Draft</button>
+                    </div>
+                </div>
+            </section>
+            
+        </div>
+    </main>
+
+    <!-- Modal for MCP Export Approval -->
+    <div id="approval-modal" class="modal hidden">
+        <div class="modal-content card">
+            <h2>Confirm Export</h2>
+            <p id="modal-msg">You are about to export AI-generated content via MCP.</p>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn text-btn">Cancel</button>
+                <button id="modal-confirm" class="btn primary">Approve & Export</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

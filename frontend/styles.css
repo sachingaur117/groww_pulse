@@ -1,0 +1,301 @@
+/* Groww-inspired Design System */
+:root {
+    --bg-main: #0F0F0F;
+    --bg-surface: #1A1A1A;
+    --bg-surface-hover: #2A2A2A;
+    
+    --primary: #00D09C;   /* Groww Green */
+    --primary-hover: #00B386;
+    --accent: #FF6B6B;    /* Negative sentiment */
+    
+    --text-main: #FFFFFF;
+    --text-dim: #8F9BB3;
+    
+    --border: #333333;
+    --radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+/* Header */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.groww-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--primary);
+}
+
+h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.dim { color: var(--text-dim); }
+
+/* Layout */
+.dashboard {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+/* Forms & Buttons */
+.config-controls {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    align-items: flex-end;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+label {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+input, select {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn.primary {
+    background-color: var(--primary);
+    color: var(--bg-main);
+}
+
+.btn.primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn.outline {
+    background-color: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    width: 100%;
+}
+
+.btn.outline:hover:not(:disabled) {
+    background-color: rgba(0, 208, 156, 0.1);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: var(--border);
+    color: var(--text-dim);
+}
+
+.status-bar {
+    margin-top: 1rem;
+    padding: 10px 16px;
+    background-color: var(--bg-main);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border-left: 3px solid var(--primary);
+}
+
+.hidden { display: none !important; }
+
+/* Pulse Section */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.meta-tag {
+    background-color: var(--bg-main);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--primary);
+}
+
+.narrative-card {
+    margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    color: #E2E8F0;
+}
+
+.narrative-card h3 {
+    color: var(--primary);
+    margin-top: 1rem;
+    font-size: 1.1rem;
+}
+
+.themes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.theme-card {
+    background-color: var(--bg-main);
+    padding: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.theme-card h4 {
+    margin-bottom: 0.2rem;
+    color: var(--text-main);
+}
+
+.theme-card .meta {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+}
+
+.quote {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #CBD5E1;
+    border-left: 2px solid var(--border);
+    padding-left: 10px;
+    margin: 8px 0;
+}
+
+/* Fee Section */
+.fee-card {
+    margin-top: 1rem;
+}
+
+.fee-list {
+    list-style: none;
+}
+
+.fee-list li {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.fee-list li strong {
+    color: var(--primary);
+}
+
+.source-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    text-decoration: underline;
+}
+
+.export-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    width: 400px;
+    max-width: 90%;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.text-btn {
+    background: transparent;
+    color: var(--text-dim);
+}
+
+.text-btn:hover {
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid, .config-controls, .themes-grid {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+}

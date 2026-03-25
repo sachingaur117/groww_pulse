@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-03-25T20:11:38.797751",
+  "date_range": {
+    "from": "2026-03-24",
+    "to": "2026-03-24"
+  },
+  "total_reviews": 25,
+  "avg_rating": 2.92,
+  "theme_counts": {
+    "UI/UX": 8,
+    "Reliability": 6,
+    "Features": 5,
+    "Information Visibility": 2,
+    "Performance": 2,
+    "Hidden Charges": 2
+  },
+  "theme_data": {
+    "UI/UX": {
+      "count": 8,
+      "avg_rating": 5.0,
+      "sentiment_dist": {
+        "positive": 8
+      },
+      "top_quotes": [
+        "very good easy to use",
+        "so Beautiful app",
+        "Easy understand for investment."
+      ]
+    },
+    "Performance": {
+      "count": 2,
+      "avg_rating": 2.0,
+      "sentiment_dist": {
+        "negative": 2
+      },
+      "top_quotes": [
+        "I am very upset with customer support whose delay has resulted in financial loss to me. My Groww app hanged from 2.30pm onwards today while I was trying to redeem mutual funds. I tried relogging but it didn't help. I immediately called customer care but after 5-6 minutes the executive just stopped talking to me and transferred my call to IVR. I opened Customer Support chat at 2.46 pm but they could resolve my issue by 3.10pm by then I lost opportunity to get today's NAV for no fault of mine.",
+        "The app is crashing today sir . Despite logging through mobile verification, it is automatically getting logged out even after catching otp"
+      ]
+    },
+    "Hidden Charges": {
+      "count": 2,
+      "avg_rating": 1.0,
+      "sentiment_dist": {
+        "negative": 2
+      },
+      "top_quotes": [
+        "Charges are too high .. Jitna profit nhi hota , usse jyada ye log tax kaat lete hai",
+        "unable to verify my tpin..it says something went wrong. also brokerage/charges are too high as compared to other competitive brokers"
+      ]
+    },
+    "Onboarding": {
+      "count": 0,
+      "avg_rating": null,
+      "sentiment_dist": {},
+      "top_quotes": []
+    },
+    "Features": {
+      "count": 5,
+      "avg_rating": 2.0,
+      "sentiment_dist": {
+        "negative": 3,
+        "neutral": 2
+      },
+      "top_quotes": [
+        "please give any job",
+        "luuuu un plu up, sxeeqa/jhb pn pn",
+        "not good because chart not available in proper 1h 2h 4h"
+      ]
+    },
+    "Information Visibility": {
+      "count": 2,
+      "avg_rating": 2.5,
+      "sentiment_dist": {
+        "negative": 2
+      },
+      "top_quotes": [
+        "my invested value is not matching but rest all are very good...",
+        "Team, I am not able to fetch the latest details on my mutual funds on groww, I really find it easier to Access the UI and not wanting to switch to a different app for my mutual fund transactions. It says external funds tracking is paused by mfcentral, but on other apps it's working, Please let me know if this can be fixed, expecting a response before I plan to switch to another application."
+      ]
+    },
+    "Reliability": {
+      "count": 6,
+      "avg_rating": 2.0,
+      "sentiment_dist": {
+        "negative": 6
+      },
+      "top_quotes": [
+        "सबसे बड़ा चोर है ये अलविदा ग्रोव बहुत लूटा तूने अब तेरा अर्थी सज गई अब हम नई जगह प्रवेश कर रहें है STOXKART BEST FREE BROKERAGE SERVICES। बहुत बढ़िया है STOXKART",
+        "hi team grow is not login issue coming",
+        "fraud app, I'm giving minus star"
+      ]
+    }
+  },
+  "narrative": "Weekly Product Pulse: Groww App\n\nPeriod: 2026-03-24 → 2026-03-24\nTotal reviews analyzed: 25\nAverage rating: 2.92 / 5\n\n### Theme Breakdown\n\n**[UI/UX]**\nUsers are highly satisfied with the app's user interface and overall experience, expressing strong positive feedback. All 8 reviews related to UI/UX were positive, indicating a significant strength.\nDominant sentiment: positive\nPM Action: Continue to monitor UI/UX feedback for sustained positive sentiment and identify areas for minor enhancements.\n\n**[Performance]**\nBoth reviews highlight critical performance issues, specifically app crashes and freezing, leading to significant user frustration and reported financial loss. Customer support delays are also cited as a contributing factor to negative experiences.\nDominant sentiment: negative\nPM Action: Investigate reported app crashes and freezing issues immediately, coordinating with engineering and customer support to address stability and response times.\n\n**[Hidden Charges]**\nBoth reviews express strong dissatisfaction regarding high charges and taxes, with users feeling that profits are outweighed by fees. One user also reported issues with TPIN verification, linking it to overall high charges perception.\nDominant sentiment: negative\nPM Action: Review current fee structures and communication around charges; explore competitive analysis and improve transparency.\n\n**[Features]**\nA significant portion of reviews (5) related to features are negative or neutral, with specific requests for job-related features and general dissatisfaction. The average rating for this theme is 2.0.\nDominant sentiment: negative\nPM Action: Analyze specific feature requests and negative feedback to identify unmet user needs and potential feature gaps.\n\n**[Information Visibility]**\nUsers are experiencing issues with the accuracy and timeliness of displayed investment data, specifically regarding invested value and mutual fund details. While the UI is generally praised, the data accuracy is a pain point.\nDominant sentiment: negative\nPM Action: Prioritize investigation into data synchronization and display accuracy for investment portfolios, especially mutual funds.\n\n**[Reliability]**\nA substantial number of reviews (6) directly question the app's reliability, reporting login issues and labeling the app as \"fraud.\" All reviews in this category are negative, indicating severe trust and functionality concerns.\nDominant sentiment: negative\nPM Action: Immediately escalate and investigate all reported login issues and \"fraud\" claims to restore user trust and app functionality.\n\n### Overall Signal\n\nThe most urgent issues stem from critical app stability and reliability concerns, with 8 reviews (Performance and Reliability themes) reporting crashes, login failures, and even \"fraud\" claims. These directly impact user trust and ability to use the app, demanding immediate engineering attention. On a positive note, the UI/UX remains a strong green flag, receiving 8 positive reviews with a perfect 5.0 average rating.",
+  "enriched_csv": "reviews_enriched_2026-03-25.csv"
+}

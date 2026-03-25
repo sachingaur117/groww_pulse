@@ -1,0 +1,21 @@
+# Secrets
+.env
+token.json
+token_*.json
+credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Data outputs
+data/*.csv
+
+# IDE
+.vscode/
+.idea/
+*.DS_Store

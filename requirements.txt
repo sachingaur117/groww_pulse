@@ -1,0 +1,17 @@
+# ── Phase 1: Scraper ──────────────────────────────────────────────────────────
+google-play-scraper==1.2.7
+pandas==2.2.2
+
+# ── Phase 2 & 3: AI / Gemini ─────────────────────────────────────────────────
+google-generativeai==0.8.3
+
+# ── Phase 4 & 5: Backend API + MCP ───────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-dotenv==1.0.1
+python-multipart==0.0.20
+
+# ── Phase 5: Google Auth + APIs ───────────────────────────────────────────────
+google-auth==2.37.0
+google-auth-oauthlib==1.2.1
+google-api-python-client==2.157.0

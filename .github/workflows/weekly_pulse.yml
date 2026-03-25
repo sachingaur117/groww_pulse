@@ -1,0 +1,45 @@
+name: Weekly Review Pulse Generation
+
+on:
+  schedule:
+    # Runs at 09:00 UTC (14:30 IST) every Friday
+    - cron: '0 9 * * 5'
+  workflow_dispatch: # Allows you to manually trigger it from the GitHub UI
+
+jobs:
+  run-pulse-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Weekly Pulse Script
+        env:
+          # Add all necessary secrets from your .env file into GitHub Repository Secrets
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROWW_APP_ID: ${{ secrets.GROWW_APP_ID }}
+          # Uncomment if you want the script to export to GDocs/Gmail
+          # GOOGLE_DOC_ID: ${{ secrets.GOOGLE_DOC_ID }}
+          # GMAIL_DRAFT_RECIPIENT: ${{ secrets.GMAIL_DRAFT_RECIPIENT }}
+        run: |
+          python scripts/run_weekly_job.py
+
+      # Optional: Auto-commit the newly generated data files back to the repository
+      - name: Commit and Push Generated Data (Optional)
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/
+          # Only commit if there are changes
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: Auto-update weekly pulse data"
+          git push
