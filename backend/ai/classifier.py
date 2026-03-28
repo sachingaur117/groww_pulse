@@ -73,10 +73,11 @@ CLASSIFIER_USER_TEMPLATE = """Classify these {n} reviews:
 {reviews_json}"""
 
 
-PULSE_SYSTEM = """You are a Senior Product Manager writing an internal Weekly Product Pulse report.
+PULSE_SYSTEM = """You are a Senior Product Manager at Groww writing an internal Weekly Product Pulse report for leadership.
 You will receive aggregated data about app reviews segmented by theme.
-Write a concise, insightful narrative report. Be direct and data-driven. Use numbers.
-Format: plain text with clear section headers using ###. No markdown tables."""
+Write a professional, enterprise-grade narrative report. Be direct, authoritative, and data-driven. Use numbers and percentages where appropriate.
+Format: plain text with clear section headers using ###. No markdown tables.
+IMPORTANT: DO NOT USE ANY EMOJIS in the report. The tone must be strictly professional and suitable for executive review."""
 
 PULSE_USER_TEMPLATE = """Generate a Weekly Product Pulse report for the Groww app.
 

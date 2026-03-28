@@ -91,7 +91,7 @@ runBtn.addEventListener('click', async () => {
 
 // ── RENDERERS ────────────────────────────────────────────────────────────────
 function renderPulse(report) {
-    pulseMeta.textContent = `${report.total_reviews} reviews analyzed | Avg ${report.avg_rating}⭐`;
+    pulseMeta.textContent = `${report.total_reviews} reviews analyzed • Growth Rating: ${report.avg_rating}`;
     pulseMeta.classList.remove('hidden');
     
     narrativeCard.innerHTML = parseNarrativeMarkdown(report.narrative);
@@ -106,25 +106,26 @@ function renderPulse(report) {
     for (const [theme, data] of sortedThemes) {
         if (data.count === 0) continue;
         
-        // Extract dominant sentiment simply
         let domSentiment = "Neutral";
         let maxCount = -1;
         for (const [s, count] of Object.entries(data.sentiment_dist)) {
             if (count > maxCount) { maxCount = count; domSentiment = s; }
         }
 
-        const color = domSentiment.toLowerCase() === 'negative' ? 'var(--accent)' : 'var(--primary)';
-
+        const sentimentClass = `sentiment-${domSentiment.toLowerCase()}`;
         const quotesHtml = data.top_quotes.slice(0, 2).map(q => `<div class="quote">"${q}"</div>`).join('');
 
         const card = document.createElement('div');
         card.className = 'theme-card';
         card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:start;">
+            <div class="theme-label">
                 <h4>${theme}</h4>
-                <span style="color:${color}; font-size:0.8rem; font-weight:600">${domSentiment}</span>
+                <span class="sentiment-badge ${sentimentClass}">${domSentiment}</span>
             </div>
-            <div class="meta">${data.count} reviews • ${data.avg_rating}⭐ avg</div>
+            <div class="theme-meta">
+                <span>${data.count} reviews</span>
+                <span>${data.avg_rating} Avg. Rating</span>
+            </div>
             ${quotesHtml}
         `;
         themesGrid.appendChild(card);
