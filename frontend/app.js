@@ -1,4 +1,4 @@
-// app.js — Phase 4.5 Intelligence Fix
+// app.js — Phase 4.6 Bug Fixes & UX Cleanup
 
 const BASE_URL = ""; 
 
@@ -28,6 +28,13 @@ const modalPasswordGroup = document.getElementById('modal-password-group');
 let lastPulseReport = null;
 let lastFeeReport = null;
 
+// ── UI INTERACTIVITY ─────────────────────────────────────────────────────────
+
+// SLIDER FIX: Update displayed days in real-time
+daysInput.addEventListener('input', (e) => {
+    daysVal.innerHTML = `${e.target.value} <span class="text-[10px] text-slate-600 uppercase">Days</span>`;
+});
+
 // ── UTILS ────────────────────────────────────────────────────────────────────
 function setStatus(msg, isError = false) {
     statusBar.textContent = msg;
@@ -39,6 +46,28 @@ function setStatus(msg, isError = false) {
     }
 }
 
+async function safeFetchJson(url, options = {}) {
+    const res = await fetch(url, options);
+    const contentType = res.headers.get("content-type");
+    
+    if (!res.ok) {
+        // If it's a 404 or 500, it might return HTML depending on the platform
+        if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            throw new Error(errData.detail || `Server Error (${res.status})`);
+        } else {
+            // Highly likely HTML error page
+            throw new Error(`Connectivity Issue: Backend returned ${res.status} (Non-JSON). Check if server is still deploying.`);
+        }
+    }
+    
+    if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid Response: Expected JSON but received HTML/Plaintext. Verify endpoint URL.");
+    }
+    
+    return await res.json();
+}
+
 function parseNarrativeMarkdown(text) {
     return text.replace(/### (.*?)\n/g, '<h3 class="text-xs font-black text-emerald-500 mb-3 mt-8 first:mt-0 uppercase tracking-[0.3em] border-b border-emerald-500/10 pb-2">$1</h3>\n');
 }
@@ -47,7 +76,6 @@ function unlockExportPanel() {
     customRecipientsInput.disabled = false;
     customRecipientsInput.classList.remove('opacity-50');
     
-    // Solid Colors
     gdocBtn.disabled = false;
     gdocBtn.classList.remove('text-blue-500/40', 'cursor-not-allowed', 'bg-slate-800/40');
     gdocBtn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'text-blue-500', 'cursor-pointer', 'shadow-glow', 'shadow-blue-500/10');
@@ -96,21 +124,16 @@ runBtn.addEventListener('click', async () => {
 
     try {
         setStatus(`ORCHESTRATING DATA FLOW: ${days} DAY PERSPECTIVE...`);
-        const scrapeRes = await fetch(`${BASE_URL}/scrape?days=${days}`);
-        const scrapeData = await scrapeRes.json();
-        if (!scrapeRes.ok) throw new Error(scrapeData.detail || 'Scraping failed');
+        
+        // Use safeFetchJson to avoid "Unexpected token <" error silently failing
+        const scrapeData = await safeFetchJson(`${BASE_URL}/scrape?days=${days}`);
 
         setStatus(`HARVESTED ${scrapeData.row_count} DATA POINTS. EXECUTING AI ANALYSIS...`);
-        const [analyzeRes, feeRes] = await Promise.all([
-            fetch(`${BASE_URL}/analyze?csv_filename=${scrapeData.csv_filename}`, { method: 'POST' }),
-            fetch(`${BASE_URL}/fee-explain?fee_type=${encodeURIComponent(feeType)}`, { method: 'POST' })
+        
+        const [analyzeData, feeData] = await Promise.all([
+            safeFetchJson(`${BASE_URL}/analyze?csv_filename=${scrapeData.csv_filename}`, { method: 'POST' }),
+            safeFetchJson(`${BASE_URL}/fee-explain?fee_type=${encodeURIComponent(feeType)}`, { method: 'POST' })
         ]);
-
-        const analyzeData = await analyzeRes.json();
-        const feeData = await feeRes.json();
-
-        if (!analyzeRes.ok) throw new Error(analyzeData.detail || 'Analysis failed');
-        if (!feeRes.ok) throw new Error(feeData.detail || 'Fee explanation failed');
 
         renderPulse(analyzeData.pulse_report);
         renderFee(feeData.data);
@@ -123,6 +146,16 @@ runBtn.addEventListener('click', async () => {
     } catch (err) {
         console.error(err);
         setStatus(`SYSTEM ERROR: ${err.message}`, true);
+        
+        // Reset landing state if it fails
+        narrativeCard.innerHTML = `
+            <div class="empty-state opacity-40">
+                <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/5">
+                    <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-red-500">Analysis Halted: Check Logs</p>
+            </div>
+        `;
     } finally {
         runBtn.disabled = false;
     }
@@ -130,7 +163,6 @@ runBtn.addEventListener('click', async () => {
 
 // ── RENDERERS ────────────────────────────────────────────────────────────────
 function renderPulse(report) {
-    // Clear container and append narrative + themes
     pulseContainer.innerHTML = '';
     
     const narrativeEl = document.createElement('div');
@@ -217,6 +249,8 @@ const modalCancel = document.getElementById('modal-cancel');
 const modalConfirm = document.getElementById('modal-confirm');
 const modalMsg = document.getElementById('modal-msg');
 
+let currentExportAction = null;
+
 gmailBtn.addEventListener('click', () => {
     currentExportAction = 'gmail';
     modalMsg.textContent = customRecipientsInput.value.trim() ? `TARGETING: ${customRecipientsInput.value.trim()}` : "PREPARING GMAIL DRAFT.";
@@ -239,13 +273,17 @@ modalConfirm.addEventListener('click', async () => {
     try {
         const route = currentExportAction === 'gdoc' ? '/export-doc' : '/export-email';
         setStatus("Processing Export...");
-        const res = await fetch(`${BASE_URL}${route}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Export failed');
+        
+        const data = await safeFetchJson(`${BASE_URL}${route}`, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(payload) 
+        });
+        
         setStatus(`Export Complete: ${data.doc_id || data.draft_id}`);
     } catch (err) { setStatus(`Export Error: ${err.message}`, true); }
 });
 
 document.documentElement.classList.add('dark');
 body.classList.add('dark-mode');
-console.log("Intelligence Interface V4.5 Live (Robust Rendering Protocol)");
+console.log("Intelligence Interface V4.6 Live (UI Resilience Protocol)");
