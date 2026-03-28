@@ -59,12 +59,12 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl lg:max-w-6xl mx-auto p-6 md:p-8 space-y-8 md:space-y-12 transition-all">
+    <main class="max-w-7xl mx-auto p-6 md:p-8 space-y-10 md:space-y-16 transition-all">
 
         <!-- Top Row Controls -->
-        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             <!-- Settings -->
-            <section class="flex-[2] p-8 md:p-6 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-8">
+            <section class="lg:col-span-8 p-8 md:p-10 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-8">
                 <div class="flex items-center justify-between border-b border-white/5 pb-6">
                     <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Settings</h3>
                     <span id="days-val" class="text-lg font-black text-emerald-500">2 <span class="text-[10px] text-slate-600 uppercase">Days</span></span>
@@ -99,7 +99,7 @@
             </section>
 
             <!-- Export Intel -->
-            <section id="export-panel" class="flex-1 p-8 md:p-8 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-8">
+            <section id="export-panel" class="lg:col-span-4 p-8 md:p-10 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-8">
                 <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Export Intel</h3>
                 <div class="space-y-4">
                     <input type="text" id="custom-recipients" placeholder="executive@distribution.in" 
@@ -125,9 +125,9 @@
         </div>
 
         <!-- Analysis Results -->
-        <div id="results-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10 min-h-[500px]">
+        <div id="results-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 min-h-[500px]">
             <!-- Pulse Report -->
-            <section class="lg:col-span-2 space-y-6">
+            <section class="lg:col-span-8 space-y-6">
                 <div class="flex items-center justify-between px-2">
                     <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Pulse Report</h3>
                     <span id="pulse-meta" class="hidden text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">Analysis Ready</span>
@@ -147,11 +147,11 @@
             </section>
 
             <!-- Fee Overview -->
-            <section class="lg:col-span-1 space-y-6">
+            <section class="lg:col-span-4 space-y-6">
                 <div class="px-2">
                     <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Fee Overview</h3>
                 </div>
-                <div id="fee-card" class="p-8 md:p-8 bg-slate-900 border border-white/10 rounded-2xl min-h-[450px] flex flex-col justify-center items-center text-center transition-all duration-500">
+                <div id="fee-card" class="p-8 md:p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[450px] flex flex-col justify-center items-center text-center transition-all duration-500">
                     <div class="empty-state opacity-40">
                         <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/5">
                             <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
