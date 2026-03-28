@@ -102,7 +102,8 @@ Summary Stats: {total} reviews | {avg_rating}/5 Rating
 A single, blunt paragraph on the core sentiment shift. 
 
 ### KEY SIGNALS
-For each significant theme found in the data, provide a 1-sentence analytical signal. 
+For each significant theme found in the data, provide a 4-6 line detailed analytical signal. 
+Focus on specific user issues and direct business impact. 
 IMPORTANT: Use the exact theme name as a bold header (e.g. "**UI/UX**: ...").
 
 Data for analysis:
@@ -127,9 +128,12 @@ def classify_batch(batch: list[dict], client) -> list[dict]:
         try:
             response = client.generate_content([CLASSIFIER_SYSTEM, prompt], generation_config=genai.GenerationConfig(temperature=0.1, response_mime_type="application/json"))
             return _parse_json_from_response(response.text)
-        except:
-            if attempt < RETRY_LIMIT: time.sleep(RETRY_DELAY)
-            else: return [{"review_id": r["review_id"], "theme": "Reliability", "sentiment": "neutral", "confidence": 0.0} for r in batch]
+        except Exception as exc:
+            if attempt < RETRY_LIMIT:
+                time.sleep(RETRY_DELAY)
+            else:
+                return [{"review_id": r["review_id"], "theme": "Reliability", "sentiment": "neutral", "confidence": 0.0} for r in batch]
+    return [{"review_id": r["review_id"], "theme": "Reliability", "sentiment": "neutral", "confidence": 0.0} for r in batch]
 
 
 def classify_reviews(csv_path: str) -> dict:
