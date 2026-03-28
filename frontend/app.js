@@ -17,8 +17,8 @@ const gdocBtn = document.getElementById('export-gdoc-btn');
 const gmailBtn = document.getElementById('export-gmail-btn');
 
 const customRecipientsInput = document.getElementById('custom-recipients');
-const exportPasswordInput = document.getElementById('export-password');
-const passwordGroup = document.getElementById('password-group');
+const modalPasswordInput = document.getElementById('modal-password');
+const modalPasswordGroup = document.getElementById('modal-password-group');
 
 // State holding exportable data
 let lastPulseReport = null;
@@ -161,31 +161,25 @@ const modalMsg = document.getElementById('modal-msg');
 
 let currentExportAction = null;
 
-gdocBtn.addEventListener('click', () => {
-    currentExportAction = 'gdoc';
-    modalMsg.textContent = "Append 'Weekly Product Pulse' to Google Doc via MCP tool?";
-    approvalModal.classList.remove('hidden');
-});
-
 gmailBtn.addEventListener('click', () => {
     currentExportAction = 'gmail';
     const custom = customRecipientsInput.value.trim();
     if (custom) {
-        modalMsg.textContent = `Send analysis to custom recipients: ${custom}? (Password required)`;
+        modalMsg.textContent = `Send analysis to custom recipients: ${custom}?`;
+        modalPasswordGroup.classList.remove('hidden');
     } else {
         modalMsg.textContent = "Create a draft in Gmail with full analysis via MCP tool?";
+        modalPasswordGroup.classList.add('hidden');
     }
+    modalPasswordInput.value = '';
     approvalModal.classList.remove('hidden');
 });
 
-// Toggle password field based on custom recipients
-customRecipientsInput.addEventListener('input', () => {
-    if (customRecipientsInput.value.trim()) {
-        passwordGroup.classList.remove('hidden');
-    } else {
-        passwordGroup.classList.add('hidden');
-        exportPasswordInput.value = '';
-    }
+gdocBtn.addEventListener('click', () => {
+    currentExportAction = 'gdoc';
+    modalMsg.textContent = "Append 'Weekly Product Pulse' to Google Doc via MCP tool?";
+    modalPasswordGroup.classList.add('hidden');
+    approvalModal.classList.remove('hidden');
 });
 
 modalCancel.addEventListener('click', () => {
@@ -205,7 +199,7 @@ modalConfirm.addEventListener('click', async () => {
         pulse_report: lastPulseReport,
         fee_report: lastFeeReport,
         custom_recipients: customRecipientsInput.value.trim(),
-        custom_export_password: exportPasswordInput.value
+        custom_export_password: modalPasswordInput.value
     };
 
     try {

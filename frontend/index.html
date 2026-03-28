@@ -80,13 +80,9 @@
                     <p class="text-sm dim mb-3">Review outputs above before exporting to MCP tools.</p>
                     
                     <div id="gmail-custom-controls" class="mb-3">
-                        <div class="input-group mb-2">
+                        <div class="input-group">
                             <label for="custom-recipients">Custom Recipients (optional, comma-separated)</label>
                             <input type="text" id="custom-recipients" placeholder="e.g. boss@groww.in, team@groww.in">
-                        </div>
-                        <div id="password-group" class="input-group hidden">
-                            <label for="export-password">Export Password (required for custom emails)</label>
-                            <input type="password" id="export-password" placeholder="••••••••">
                         </div>
                     </div>
 
@@ -105,6 +101,10 @@
         <div class="modal-content card">
             <h2>Confirm Export</h2>
             <p id="modal-msg">You are about to export AI-generated content via MCP.</p>
+            <div id="modal-password-group" class="input-group mt-4 hidden">
+                <label for="modal-password">Export Password</label>
+                <input type="password" id="modal-password" placeholder="••••••••">
+            </div>
             <div class="modal-actions">
                 <button id="modal-cancel" class="btn text-btn">Cancel</button>
                 <button id="modal-confirm" class="btn primary">Approve & Export</button>
