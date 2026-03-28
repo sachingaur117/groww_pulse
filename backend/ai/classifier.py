@@ -1,10 +1,10 @@
 """
 classifier.py — AI Classification & Weekly Product Pulse Engine
 
-Uses Gemini (gemini-2.0-flash) to:
+Uses Gemini (gemini-2.5-flash) to:
   1. Classify each review into one of 7 themes with sentiment + confidence
-  2. Aggregate results by theme
-  3. Generate the narrative Weekly Product Pulse report
+  2. Aggregate results by theme (Robust String Matching)
+  3. Generate the narrative Weekly Product Pulse report (Executive Focus)
 
 Usage (importable):
     from backend.ai.classifier import classify_reviews, pulse_engine
@@ -147,63 +147,44 @@ def classify_batch(batch: list[dict], client) -> list[dict]:
 def classify_reviews(csv_path: str) -> dict:
     """
     Classify all reviews in a CSV. Adds theme/sentiment/confidence columns.
-
-    Returns:
-        dict with enriched_csv_path, enriched_csv_filename, row_count, theme_counts
     """
     client = genai.GenerativeModel(MODEL)
     df = pd.read_csv(csv_path)
 
-    # Drop rows with empty review text
     df = df[df["review_text"].notna() & (df["review_text"].str.strip() != "")]
     df.reset_index(drop=True, inplace=True)
     total = len(df)
-    print(f"\n🤖 Classifying {total} reviews using Gemini ({MODEL})...")
+    print(f"\n🤖 Classifying {total} reviews...")
 
-    # ── Batch processing ──────────────────────────────────────────────────────
     records = df.to_dict("records")
-    classifications: dict[str, dict] = {}  # review_id → {theme, sentiment, confidence}
+    classifications: dict[str, dict] = {}
 
     for i in range(0, total, BATCH_SIZE):
         batch = records[i: i + BATCH_SIZE]
-        batch_num = i // BATCH_SIZE + 1
-        total_batches = (total + BATCH_SIZE - 1) // BATCH_SIZE
-        print(f"   Batch {batch_num}/{total_batches} ({len(batch)} reviews)...", end="\r")
-
         results = classify_batch(batch, client)
-
         for item in results:
             classifications[item["review_id"]] = {
                 "theme":      item.get("theme", "Reliability"),
                 "sentiment":  item.get("sentiment", "neutral"),
                 "confidence": float(item.get("confidence", 0.0)),
             }
-
-        # Brief pause to stay within Gemini rate limits
         time.sleep(1)
 
-    print(f"\n✅ Classification complete for {len(classifications)} reviews.")
-
-    # ── Merge back to DataFrame ───────────────────────────────────────────────
     df["theme"]      = df["review_id"].map(lambda rid: classifications.get(rid, {}).get("theme", "Reliability"))
     df["sentiment"]  = df["review_id"].map(lambda rid: classifications.get(rid, {}).get("sentiment", "neutral"))
     df["confidence"] = df["review_id"].map(lambda rid: classifications.get(rid, {}).get("confidence", 0.0))
 
-    # ── Save enriched CSV ─────────────────────────────────────────────────────
     today_str = datetime.now().strftime("%Y-%m-%d")
     enriched_filename = f"reviews_enriched_{today_str}.csv"
     enriched_path = DATA_DIR / enriched_filename
     df.to_csv(enriched_path, index=False, encoding="utf-8")
 
-    theme_counts = df["theme"].value_counts().to_dict()
-    print(f"   Saved to: {enriched_path}")
-
     return {
         "enriched_csv_path":     str(enriched_path),
         "enriched_csv_filename": enriched_filename,
         "row_count":             len(df),
-        "theme_counts":          theme_counts,
-        "dataframe":             df,          # passed internally to pulse_engine
+        "theme_counts":          df["theme"].value_counts().to_dict(),
+        "dataframe":             df,
     }
 
 
@@ -213,14 +194,14 @@ def _build_theme_summary(df: pd.DataFrame) -> str:
     """Summarise each theme for the pulse prompt."""
     lines = []
     for theme in THEMES:
-        sub = df[df["theme"] == theme]
+        # ROBUST MATCHING
+        sub = df[df["theme"].astype(str).str.strip().str.lower() == theme.lower()]
         if sub.empty:
             continue
         count = len(sub)
         sentiment_dist = sub["sentiment"].value_counts().to_dict()
         dominant = max(sentiment_dist, key=sentiment_dist.get)
         avg_rating = round(sub["rating"].mean(), 2)
-        # Top 2 quotes (shortest, most legible)
         quotes = (
             sub["review_text"]
             .dropna()
@@ -231,24 +212,11 @@ def _build_theme_summary(df: pd.DataFrame) -> str:
             .tolist()
         )
         quote_str = " | ".join(f'"{q[:120]}"' for q in quotes)
-        lines.append(
-            f"[{theme}] — {count} reviews | Avg rating: {avg_rating} | "
-            f"Dominant sentiment: {dominant} | Sentiments: {sentiment_dist}\n"
-            f"  Sample quotes: {quote_str}"
-        )
+        lines.append(f"[{theme}] — {count} reviews | {avg_rating}★ | {dominant} sentiment | Quotes: {quote_str}")
     return "\n\n".join(lines)
 
 
 def pulse_engine(classify_result: dict) -> dict:
-    """
-    Generate the Weekly Product Pulse narrative using Gemini.
-
-    Args:
-        classify_result: return value from classify_reviews()
-
-    Returns:
-        pulse_report dict with narrative and structured per-theme data
-    """
     df: pd.DataFrame = classify_result["dataframe"]
     client = genai.GenerativeModel(MODEL)
 
@@ -263,8 +231,7 @@ def pulse_engine(classify_result: dict) -> dict:
         theme_summary=theme_summary,
     )
 
-    print("\n📊 Generating Weekly Product Pulse narrative...")
-
+    narrative = ""
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
             response = client.generate_content(
@@ -279,31 +246,21 @@ def pulse_engine(classify_result: dict) -> dict:
             else:
                 narrative = f"[Pulse generation failed: {exc}]"
 
-    # ── Per-theme structured data ─────────────────────────────────────────────
+    # ── Per-theme structured data (Robust Aggregation) ────────────────────────
     theme_data = {}
     for theme in THEMES:
-        sub = df[df["theme"] == theme]
+        sub = df[df["theme"].astype(str).str.strip().str.lower() == theme.lower()]
         if sub.empty:
-            theme_data[theme] = {
-                "count": 0, "avg_rating": None,
-                "sentiment_dist": {}, "top_quotes": [],
-            }
+            theme_data[theme] = {"count": 0, "avg_rating": None, "sentiment_dist": {}, "top_quotes": []}
             continue
-        sentiment_dist = sub["sentiment"].value_counts().to_dict()
-        top_quotes = (
-            sub.sort_values("thumbs_up_count", ascending=False)["review_text"]
-            .dropna()
-            .head(3)
-            .tolist()
-        )
         theme_data[theme] = {
             "count":          len(sub),
             "avg_rating":     round(sub["rating"].mean(), 2),
-            "sentiment_dist": sentiment_dist,
-            "top_quotes":     top_quotes,
+            "sentiment_dist": sub["sentiment"].value_counts().to_dict(),
+            "top_quotes":     sub.sort_values("thumbs_up_count", ascending=False)["review_text"].dropna().head(3).tolist(),
         }
 
-    pulse_report = {
+    return {
         "generated_at":   datetime.now().isoformat(),
         "date_range":     {"from": df["date"].min(), "to": df["date"].max()},
         "total_reviews":  len(df),
@@ -313,6 +270,3 @@ def pulse_engine(classify_result: dict) -> dict:
         "narrative":      narrative,
         "enriched_csv":   classify_result["enriched_csv_filename"],
     }
-
-    print("✅ Pulse report generated.")
-    return pulse_report

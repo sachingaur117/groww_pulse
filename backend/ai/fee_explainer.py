@@ -30,7 +30,11 @@ FEE_SOURCES = {
 FEE_SYSTEM_PROMPT = """You are a SEBI-registered financial content writer.
 Provide a strictly factual, neutral, and non-advisory explanation for the requested mutual fund fee or tax.
 
-You MUST format your response as exactly 3 concise, factual bullet points. Each bullet must be a single, short sentence.
+You MUST format your response as exactly 3 concise, factual bullet points. 
+Each bullet MUST follow this format: "Number. Header: One-sentence description"
+Example: "1. What it is: An Exit Load is a fee charged during redemption."
+
+DO NOT put the header and description on different lines.
 1. What it is
 2. How it's calculated
 3. Key impact / when it applies
@@ -56,18 +60,29 @@ def generate_fee_explanation(fee_type: str) -> dict:
 
     text = response.text.strip()
     
-    # Parse the text into a clean list of 6 strings
+    # Parse the text into a clean list of 3 strings
     bullets = []
-    for line in text.split('\n'):
-        line = line.strip()
-        # Accept lines that start with a number followed by a dot
-        if line and line[0].isdigit() and ('. ' in line[:4] or ') ' in line[:4]):
-            bullets.append(line)
+    lines = [l.strip() for l in text.split('\n') if l.strip()]
+    
+    current_bullet = ""
+    for line in lines:
+        # If line starts with "N. " (numbering)
+        if line[0].isdigit() and ('. ' in line[:4] or ') ' in line[:4]):
+            if current_bullet:
+                bullets.append(current_bullet)
+            current_bullet = line
+        else:
+            # If it's a continuation line, append it
+            if current_bullet:
+                current_bullet += " " + line
+            else:
+                current_bullet = line
+    
+    if current_bullet:
+        bullets.append(current_bullet)
 
-    # Fallback if the model hallucinated the format
-    if len(bullets) < 4:
-        # Just split by newline if numbering failed
-        bullets = [b.strip() for b in text.split('\n') if b.strip()][:6]
+    # Fallback/Truncation safety
+    bullets = [b for b in bullets if len(b) > 10][:3]
 
     return {
         "fee_type": fee_type,
