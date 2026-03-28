@@ -48,7 +48,7 @@ function parseNarrativeMarkdown(text) {
 }
 
 function unlockExportPanel() {
-    exportPanel.classList.remove('opacity-30', 'grayscale', 'blur-[1px]', 'pointer-events-none', 'cursor-not-allowed');
+    exportPanel.classList.remove('opacity-50', 'grayscale', 'blur-[1px]', 'pointer-events-none', 'cursor-not-allowed');
     exportPanel.classList.add('opacity-100');
     // Enable buttons
     gdocBtn.disabled = false;
@@ -56,7 +56,7 @@ function unlockExportPanel() {
 }
 
 function lockExportPanel() {
-    exportPanel.classList.add('opacity-30', 'grayscale', 'blur-[1px]', 'pointer-events-none', 'cursor-not-allowed');
+    exportPanel.classList.add('opacity-50', 'grayscale', 'blur-[1px]', 'pointer-events-none', 'cursor-not-allowed');
     exportPanel.classList.remove('opacity-100');
     gdocBtn.disabled = true;
     gmailBtn.disabled = true;
