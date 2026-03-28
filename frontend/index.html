@@ -47,7 +47,7 @@
                 <div class="px-8 flex items-center space-x-2 text-xs font-medium"><span class="w-2 h-2 rounded-full bg-black border border-white/10"></span> <span>INDmoney</span> <span class="text-emerald-500">4.5★</span></div>
                 <div class="px-8 flex items-center space-x-2 text-xs font-medium"><span class="w-2 h-2 rounded-full bg-red-600"></span> <span>ET Money</span> <span class="text-emerald-500">4.4★</span></div>
             </div>
-            <!-- Duplicate content for seamless marquee -->
+            <!-- Duplicate for loop -->
             <div class="ticker-content flex">
                 <div class="px-8 flex items-center space-x-2 text-xs font-medium"><span class="w-2 h-2 rounded-full bg-blue-500"></span> <span>Zerodha</span> <span class="text-emerald-500">4.3★</span></div>
                 <div class="px-8 flex items-center space-x-2 text-xs font-medium"><span class="w-2 h-2 rounded-full bg-indigo-900"></span> <span>Angel One</span> <span class="text-emerald-500">4.2★</span></div>
@@ -66,18 +66,13 @@
     <!-- Navigation -->
     <header class="sticky top-0 z-50 w-full bg-slate-950/80 backdrop-blur-lg border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                </div>
-                <h1 class="text-xl font-extrabold tracking-tight text-white uppercase">Pulse <span class="text-emerald-500">Analytics</span></h1>
+            <div class="flex items-center">
+                <h1 class="text-2xl font-black tracking-tighter text-white uppercase italic">Pulse <span class="text-emerald-500 not-italic">Analytics</span></h1>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="theme-toggle" class="p-2 rounded-xl border border-white/10 hover:bg-white/5 transition-all">
-                    <span id="theme-icon" class="text-lg">☀️</span>
-                </button>
-                <div class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                    <span class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Enterprise Mode</span>
+            <div class="flex items-center">
+                <div class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center space-x-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Enterprise Protocol</span>
                 </div>
             </div>
         </div>
@@ -85,149 +80,123 @@
 
     <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
         
-        <!-- Action Bar / Configuration -->
-        <section class="p-6 bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-sm shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="w-full md:w-auto space-y-2">
-                <label class="text-sm font-semibold text-slate-400">Time Range: <span id="days-val" class="text-emerald-500 font-bold">2</span> days</label>
-                <input type="range" id="days-input" min="1" max="7" value="2" 
-                    class="w-full md:w-64 accent-emerald-500 h-1.5 bg-slate-800 rounded-full cursor-pointer appearance-none">
-            </div>
-
-            <div class="w-full md:w-auto flex flex-col md:flex-row items-center gap-6">
-                <div class="w-full md:w-auto space-y-2">
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Fee Scenario</label>
-                    <div class="relative">
-                        <select id="fee-select" class="w-full md:w-56 bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none cursor-pointer">
-                            <option value="Exit Load">Exit Load</option>
-                            <option value="Expense Ratio">Expense Ratio</option>
-                            <option value="STCG Tax">STCG Tax</option>
-                            <option value="LTCG Tax">LTCG Tax</option>
-                            <option value="Stamp Duty">Stamp Duty</option>
-                        </select>
-                        <svg class="w-4 h-4 absolute right-3 top-3 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-
-                <button id="run-btn" class="w-full md:w-auto bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <span>Analyze Growth Pulse</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- Status Bar -->
-        <div id="status-bar" class="hidden px-6 py-4 bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-500 rounded-r-xl text-sm font-medium animate-pulse">
-            Ready to scan product environment...
-        </div>
-
-        <!-- Dashboard Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- TOP ROW: Config & Export Workflow -->
+        <div class="flex flex-col lg:flex-row items-stretch gap-6">
             
-            <!-- Pulse Column -->
-            <section class="lg:col-span-2 space-y-6">
-                <div class="flex items-center justify-between px-2">
-                    <h2 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        <span>Product Growth Pulse</span>
-                    </h2>
-                    <span id="pulse-meta" class="hidden text-[10px] font-bold text-slate-500 uppercase tracking-widest">0 Reviews Analyzed</span>
+            <!-- Analysis Configuration -->
+            <section class="flex-[2] p-6 bg-slate-900 border border-white/10 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Analysis Configuration</h3>
+                    <span id="days-val" class="text-lg font-black text-emerald-500">2 <span class="text-[10px] text-slate-600 uppercase">Days</span></span>
                 </div>
-
-                <div id="narrative-card" class="p-8 bg-slate-900/40 border border-white/10 rounded-2xl min-h-[300px] flex flex-col justify-center items-center text-center group">
-                    <!-- Empty State -->
-                    <div class="empty-state transition-all group-hover:scale-105 duration-500">
-                        <div class="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 mx-auto border border-white/5">
-                            <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        </div>
-                        <p class="text-slate-500 text-lg font-medium">Calibrating Analytics engine...</p>
-                        <p class="text-slate-600 text-sm mt-1">Run analysis to generate the Weekly Product Pulse report.</p>
+                
+                <div class="flex flex-col md:flex-row items-center gap-8 w-full">
+                    <div class="flex-1 w-full space-y-4">
+                        <input type="range" id="days-input" min="1" max="7" value="2" 
+                            class="w-full accent-emerald-500 h-1.5 bg-slate-800 rounded-full cursor-pointer appearance-none">
                     </div>
-                </div>
 
-                <div id="themes-grid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <!-- Dynamics themes injected here -->
+                    <div class="flex-1 w-full relative">
+                        <select id="fee-select" class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none cursor-pointer font-bold">
+                            <option value="Exit Load">Exit Load Strategy</option>
+                            <option value="Expense Ratio">Expense Ratio Matrix</option>
+                            <option value="STCG Tax">STCG Tax Logic</option>
+                            <option value="LTCG Tax">LTCG Tax Logic</option>
+                            <option value="Stamp Duty">Stamp Duty Protocol</option>
+                        </select>
+                        <svg class="w-4 h-4 absolute right-3 top-3.5 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+
+                    <button id="run-btn" class="w-full md:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 px-10 rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center space-x-3 group">
+                        <svg class="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span class="uppercase tracking-widest text-xs">Run Intelligence</span>
+                    </button>
                 </div>
             </section>
 
-            <!-- Side Panel (Fee + Export) -->
-            <aside class="space-y-8">
+            <!-- Export Intel (Adjacent) -->
+            <section id="export-panel" class="flex-1 p-6 bg-slate-900 border border-white/10 rounded-2xl shadow-xl space-y-6 opacity-50 grayscale blur-[1px] pointer-events-none transition-all duration-700">
+                <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-4">Export Pipeline</h3>
                 
-                <!-- Fee Explainer -->
                 <div class="space-y-4">
-                    <h3 class="text-lg font-bold text-white px-2 flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Fee Matrix</span>
-                    </h3>
-                    <div id="fee-card" class="p-6 bg-slate-900/40 border border-white/10 rounded-2xl min-h-[250px] flex flex-col justify-center items-center text-center">
-                        <!-- Empty State -->
-                        <div class="empty-state">
-                            <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 mx-auto border border-white/5">
-                                <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            </div>
-                            <p class="text-slate-500 font-medium">Matrix Idle</p>
+                    <input type="text" id="custom-recipients" placeholder="executive@distribution.in" 
+                        class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold placeholder:font-normal">
+                    
+                    <div class="flex gap-3">
+                        <button id="export-gdoc-btn" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl border border-white/5 transition-all text-xs font-bold flex flex-col items-center justify-center space-y-2 group">
+                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14.7,2.1H6.3C5,2.1,4,3.1,4,4.4v15.2c0,1.3,1,2.3,2.3,2.3h11.4c1.3,0,2.3-1,2.3-2.3V7.2L14.7,2.1z M14.2,7.7V3.5l4.3,4.2H14.2z"></path></svg>
+                            <span>Docs</span>
+                        </button>
+                        <button id="export-gmail-btn" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl border border-white/5 transition-all text-xs font-bold flex flex-col items-center justify-center space-y-2 group">
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            <span>Gmail</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar" class="hidden px-6 py-4 bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-500 rounded-r-xl text-xs font-black uppercase tracking-widest animate-pulse">
+            System Idle — Awaiting Analysis Parameters
+        </div>
+
+        <!-- RESULTS GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            
+            <!-- Growth Pulse -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between px-2">
+                    <h2 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Product Growth Pulse</h2>
+                    <span id="pulse-meta" class="hidden text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">Analysis Complete</span>
+                </div>
+
+                <div id="narrative-card" class="p-8 bg-slate-900 border border-white/10 rounded-2xl min-h-[400px] flex flex-col justify-center items-center text-center">
+                    <div class="empty-state opacity-40">
+                        <div class="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 mx-auto border border-white/5">
+                            <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                         </div>
+                        <p class="text-slate-500 font-black uppercase tracking-widest text-xs">Awaiting Intelligence Feed</p>
                     </div>
                 </div>
 
-                <!-- Export & Share -->
-                <div class="p-6 bg-slate-900 border border-white/10 rounded-2xl space-y-6 shadow-2xl relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    <h3 class="text-lg font-bold text-white relative z-10 flex items-center space-x-2">
-                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                        <span>Export Intel</span>
-                    </h3>
-                    
-                    <div class="space-y-4 relative z-10">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Custom Distribution</label>
-                            <input type="text" id="custom-recipients" placeholder="executive@groww.in" 
-                                class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all placeholder:text-slate-700">
-                        </div>
+                <div id="themes-grid" class="hidden space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <!-- Themes here -->
+                </div>
+            </section>
 
-                        <div class="grid grid-cols-1 gap-3">
-                            <button id="export-gdoc-btn" disabled class="group/btn relative w-full bg-slate-800 hover:bg-slate-750 disabled:opacity-50 disabled:hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl border border-white/10 transition-all flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover/btn:bg-blue-500/20 transition-all">
-                                        <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14.7,2.1H6.3C5,2.1,4,3.1,4,4.4v15.2c0,1.3,1,2.3,2.3,2.3h11.4c1.3,0,2.3-1,2.3-2.3V7.2L14.7,2.1z M14.2,7.7V3.5l4.3,4.2H14.2z"></path></svg>
-                                    </div>
-                                    <span class="text-sm">Google Docs Intel</span>
-                                </div>
-                                <svg class="w-4 h-4 text-slate-600 group-hover/btn:text-emerald-500 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
-
-                            <button id="export-gmail-btn" disabled class="group/btn relative w-full bg-slate-800 hover:bg-slate-750 disabled:opacity-50 disabled:hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl border border-white/10 transition-all flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover/btn:bg-red-500/20 transition-all">
-                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                    </div>
-                                    <span class="text-sm">Gmail Intelligence</span>
-                                </div>
-                                <svg class="w-4 h-4 text-slate-600 group-hover/btn:text-emerald-500 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
+            <!-- Fee Matrix -->
+            <section class="space-y-4">
+                <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em] px-2">Strategic Fee Matrix</h3>
+                <div id="fee-card" class="p-8 bg-slate-900 border border-white/10 rounded-2xl min-h-[400px] flex flex-col justify-center items-center text-center">
+                    <div class="empty-state opacity-40">
+                        <div class="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 mx-auto border border-white/5">
+                            <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
+                        <p class="text-slate-500 font-black uppercase tracking-widest text-xs">Strategy Matrix Idle</p>
                     </div>
                 </div>
-            </aside>
+            </section>
+
         </div>
     </main>
 
     <!-- Modal for MCP Export Approval -->
     <div id="approval-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6">
-        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xl"></div>
-        <div class="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
-            <h2 class="text-2xl font-black text-white mb-2">Secure Authorization</h2>
-            <p id="modal-msg" class="text-slate-400 text-sm">Reviewing distribution to executive channels.</p>
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"></div>
+        <div class="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-10 shadow-3xl animate-in zoom-in-95 duration-300">
+            <h2 class="text-2xl font-black text-white mb-2 tracking-tighter italic uppercase">Security <span class="text-emerald-500 not-italic">Handshake</span></h2>
+            <p id="modal-msg" class="text-slate-400 text-sm font-medium">Authorizing secure intel transmission.</p>
             
-            <div id="modal-password-group" class="hidden mt-8 space-y-3">
-                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Token Password</label>
+            <div id="modal-password-group" class="hidden mt-10 space-y-3">
+                <label class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Access Token</label>
                 <input type="password" id="modal-password" placeholder="••••••••" 
-                    class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-4 text-lg tracking-[0.2em] focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all">
+                    class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-5 text-2xl tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all">
             </div>
 
-            <div class="mt-10 flex gap-4">
-                <button id="modal-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-2xl transition-all">Dismiss</button>
-                <button id="modal-confirm" class="flex-[2] bg-emerald-500 hover:bg-emerald-400 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">Authorize Export</button>
+            <div class="mt-12 flex gap-4">
+                <button id="modal-cancel" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black py-4 rounded-2xl transition-all uppercase tracking-widest text-[10px]">Cancel</button>
+                <button id="modal-confirm" class="flex-[2] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all uppercase tracking-widest text-[10px]">Authorize</button>
             </div>
         </div>
     </div>
