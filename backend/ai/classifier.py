@@ -85,16 +85,11 @@ Period: {date_range}
 Total reviews analyzed: {total}
 Average rating: {avg_rating} / 5
 
-Aggregated Data for context (DO NOT write these as a list in the narrative):
-{theme_summary}
+### PULSE OVERVIEW
+A 2-paragraph high-level summary. Focus on the core user experience and sentiment trends.
 
-Write the report in exactly two sections:
-
-### EXECUTIVE OVERVIEW
-A 2-paragraph high-level summary of product health. The first paragraph should cover key themes and sentiment. The second paragraph should interpret the data and provide strategic context for leadership.
-
-### OVERALL SIGNAL
-A final 3-sentence summary highlighting the most critical fix required this week and any notable green flags.
+### KEY SIGNALS
+A 3-sentence summary of the most urgent action and positive wins.
 
 IMPORTANT: Focus ONLY on these two sections. Do not provide a per-theme breakdown in this text report, as it will be handled by our structured UI cards."""
 

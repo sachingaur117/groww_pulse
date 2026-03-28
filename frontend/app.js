@@ -1,4 +1,4 @@
-// app.js — Phase 4.3 UI/UX Refinement
+// app.js — Phase 4.4 UX Refinement
 
 const BASE_URL = ""; 
 
@@ -41,7 +41,7 @@ function setStatus(msg, isError = false) {
 }
 
 function parseNarrativeMarkdown(text) {
-    // Premium headers for executive summary
+    // Premium headers for pulse overview
     return text.replace(/### (.*?)\n/g, '<h3 class="text-xs font-black text-emerald-500 mb-3 mt-8 first:mt-0 uppercase tracking-[0.3em] border-b border-emerald-500/10 pb-2">$1</h3>\n');
 }
 
@@ -93,18 +93,18 @@ runBtn.addEventListener('click', async () => {
     narrativeCard.innerHTML = `
         <div class="flex flex-col items-center justify-center animate-pulse">
             <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Synthesizing Intelligence...</p>
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Analyzing Data...</p>
         </div>
     `;
     feeCard.innerHTML = `
         <div class="flex flex-col items-center justify-center animate-pulse">
             <div class="w-12 h-12 border-4 border-slate-700 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Mapping Strategy Matrix...</p>
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Loading Insights...</p>
         </div>
     `;
 
     try {
-        setStatus(`ORCHESTRATING DATA SCRAPE: ${days} DAY PERSPECTIVE...`);
+        setStatus(`Scraping ${days}-day data...`);
         const scrapeRes = await fetch(`${BASE_URL}/scrape?days=${days}`);
         const scrapeData = await scrapeRes.json();
         
@@ -112,7 +112,7 @@ runBtn.addEventListener('click', async () => {
 
         const { csv_filename, row_count } = scrapeData;
         
-        setStatus(`HARVESTED ${row_count} DATA POINTS. EXECUTING CLASSIFICATION...`);
+        setStatus(`Classifying ${row_count} reviews using Gemini AI...`);
         
         const [analyzeRes, feeRes] = await Promise.all([
             fetch(`${BASE_URL}/analyze?csv_filename=${csv_filename}`, { method: 'POST' }),
@@ -134,11 +134,11 @@ runBtn.addEventListener('click', async () => {
         lastFeeReport = feeData.data;
         unlockExportPanel();
 
-        setStatus(`PROTOCOL COMPLETE. REPORT READY FOR TRANSMISSION.`);
+        setStatus(`Analysis Ready. Report available for export.`);
         
     } catch (err) {
         console.error(err);
-        setStatus(`SYSTEM ERROR: ${err.message}`, true);
+        setStatus(`System Error: ${err.message}`, true);
         narrativeCard.innerHTML = `<p class="text-red-400 font-black p-4 text-center text-[10px] tracking-widest uppercase">${err.message}</p>`;
     } finally {
         runBtn.disabled = false;
@@ -149,9 +149,9 @@ runBtn.addEventListener('click', async () => {
 function renderPulse(report) {
     narrativeCard.classList.replace('flex', 'block');
     narrativeCard.classList.remove('justify-center', 'items-center', 'text-center');
-    narrativeCard.className = "p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[400px] text-left";
+    // Ensure padding/size matches user preference
+    narrativeCard.className = "p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[300px] text-left mb-6 transition-all duration-500";
     
-    // Increased font size for desktop readability (text-sm/base)
     narrativeCard.innerHTML = `
         <div class="prose prose-invert max-w-none text-slate-300 text-sm md:text-base leading-relaxed font-medium">
             ${parseNarrativeMarkdown(report.narrative)}
@@ -160,14 +160,18 @@ function renderPulse(report) {
     
     pulseMeta.classList.remove('hidden');
     themesGrid.innerHTML = '';
-    themesGrid.classList.remove('hidden');
+    themesGrid.classList.remove('hidden'); // Ensure visible
     
-    const sortedThemes = Object.entries(report.theme_data)
+    // Convert theme_data to array and filter + sort
+    const sortedThemes = Object.entries(report.theme_data || {})
+        .filter(([_, data]) => data.count > 0)
         .sort((a, b) => b[1].count - a[1].count);
 
+    if (sortedThemes.length === 0) {
+        themesGrid.classList.add('hidden');
+    }
+
     for (const [theme, data] of sortedThemes) {
-        if (data.count === 0) continue;
-        
         let domSentiment = "Neutral";
         let maxCount = -1;
         for (const [sentiment, count] of Object.entries(data.sentiment_dist)) {
@@ -175,23 +179,22 @@ function renderPulse(report) {
         }
 
         let badgeClass = "bg-slate-500/10 text-slate-400";
-        if (domSentiment === "Positive") badgeClass = "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
-        if (domSentiment === "Negative") badgeClass = "bg-red-400/10 text-red-400 border border-red-400/20";
+        if (domSentiment === "positive" || domSentiment === "Positive") badgeClass = "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+        if (domSentiment === "negative" || domSentiment === "Negative") badgeClass = "bg-red-400/10 text-red-400 border border-red-400/20";
 
-        // Structured theme cards with better density
         const quotesHtml = data.top_quotes.slice(0, 2).map(q => 
             `<div class="text-[11px] italic text-slate-400 border-l-2 border-emerald-500/30 pl-3 mt-3 py-1.5 bg-white/5 rounded-r-lg leading-relaxed truncate hover:whitespace-normal transition-all duration-300">"${q}"</div>`
         ).join('');
 
         const card = document.createElement('div');
-        card.className = 'p-6 bg-slate-950/50 border border-white/5 rounded-2xl hover:border-emerald-500/30 transition-all group';
+        card.className = 'p-6 bg-slate-950/50 border border-white/5 rounded-2xl hover:border-emerald-500/30 transition-all group animate-in fade-in slide-in-from-bottom-2 duration-500';
         card.innerHTML = `
             <div class="flex items-center justify-between mb-4">
                 <h4 class="font-black text-slate-100 group-hover:text-emerald-500 transition-colors uppercase tracking-widest text-xs">${theme}</h4>
                 <span class="px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-[0.2em] ${badgeClass}">${domSentiment}</span>
             </div>
             <div class="flex items-center space-x-4 text-[10px] font-black text-slate-600 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">
-                <span class="flex items-center"><svg class="w-3 h-3 mr-1 text-slate-700" fill="currentColor" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg> ${data.count} Points</span>
+                <span class="flex items-center"><svg class="w-3 h-3 mr-1 text-slate-700" fill="currentColor" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg> ${data.count} Reviews</span>
                 <span class="flex items-center"><svg class="w-3 h-3 mr-1 text-slate-700" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> ${data.avg_rating}★</span>
             </div>
             ${quotesHtml}
@@ -201,7 +204,8 @@ function renderPulse(report) {
 }
 
 function renderFee(data) {
-    const listHtml = data.bullets.map(b => {
+    // 3 bullets only for V4.4
+    const listHtml = data.bullets.slice(0, 3).map(b => {
         const parts = b.split(':');
         if (parts.length > 1) {
             return `
@@ -211,32 +215,32 @@ function renderFee(data) {
                     </span>
                     <span class="leading-relaxed">
                         <strong class="text-slate-100 font-black uppercase tracking-[0.2em] text-[10px] block mb-1">${parts[0]}</strong>
-                        <span class="block">${parts.slice(1).join(':')}</span>
+                        <span class="block text-slate-400">${parts.slice(1).join(':')}</span>
                     </span>
                 </li>`;
         }
         return `
             <li class="flex items-start space-x-4">
                 <span class="text-emerald-500 mt-1.5">•</span>
-                <span>${b}</span>
+                <span class="text-slate-400">${b}</span>
             </li>`;
     }).join('');
 
     feeCard.classList.remove('flex', 'justify-center', 'items-center', 'text-center');
-    feeCard.className = "p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[400px] text-left";
+    // Shorter card for V4.4
+    feeCard.className = "p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[250px] text-left transition-all duration-500";
     feeCard.innerHTML = `
-        <div class="flex items-center justify-between mb-10 border-b border-white/5 pb-5">
-            <h4 class="text-emerald-500 font-black uppercase tracking-[0.3em] text-[11px]">Matrix Profile: ${data.fee_type}</h4>
+        <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+            <h4 class="text-emerald-500 font-black uppercase tracking-[0.3em] text-[11px]">${data.fee_type} Insights</h4>
             <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-glow shadow-emerald-500/50"></div>
         </div>
-        <ul class="space-y-8 text-[12px] md:text-sm text-slate-400 font-medium">
+        <ul class="space-y-6 text-sm text-slate-300 font-medium">
             ${listHtml}
         </ul>
-        <div class="mt-14 pt-8 border-t border-white/5 flex items-center justify-between">
-            <div class="text-[10px] font-black text-slate-700 uppercase tracking-widest italic">Node Sync: ${data.last_checked}</div>
-            <a href="${data.source_url}" target="_blank" class="flex items-center space-x-3 text-[10px] font-black text-emerald-500 hover:text-emerald-400 transition-colors uppercase tracking-[0.2em] bg-emerald-500/5 px-4 py-2 rounded-xl border border-emerald-500/10">
-                <span>SEBI Official Trace</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        <div class="mt-10 pt-6 border-t border-white/5 flex items-center justify-between">
+            <div class="text-[10px] font-black text-slate-700 uppercase tracking-widest italic">Checked: ${data.last_checked}</div>
+            <a href="${data.source_url}" target="_blank" class="flex items-center space-x-2 text-[9px] font-black text-emerald-500 hover:text-emerald-400 shadow-glow shadow-emerald-500/10 transition-colors uppercase tracking-widest bg-emerald-500/5 px-3 py-1.5 rounded-lg border border-emerald-500/10">
+                Official Source
             </a>
         </div>
     `;
@@ -288,7 +292,7 @@ modalConfirm.addEventListener('click', async () => {
 
     try {
         if (currentExportAction === 'gdoc') {
-            setStatus("ESTABLISHING DOC HANDSHAKE...");
+            setStatus("Syncing with Docs...");
             const res = await fetch(`${BASE_URL}/export-doc`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -296,10 +300,10 @@ modalConfirm.addEventListener('click', async () => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Sync failed');
-            setStatus(`DATA COMMITTED: ${data.doc_id}`);
+            setStatus(`Data Sync Complete: ${data.doc_id}`);
             
         } else if (currentExportAction === 'gmail') {
-            setStatus("INJECTING DRAFT CARRIER...");
+            setStatus("Preparing Gmail Draft...");
             const res = await fetch(`${BASE_URL}/export-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -307,15 +311,15 @@ modalConfirm.addEventListener('click', async () => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Broadcast failed');
-            setStatus(`TRANSMISSION BUFFERED: ${data.draft_id}`);
+            setStatus(`Draft Prepared: ${data.draft_id}`);
         }
     } catch (err) {
         console.error(err);
-        setStatus(`ORCHESTRATION FAILED: ${err.message}`, true);
+        setStatus(`Export Error: ${err.message}`, true);
     }
 });
 
-// ── V4.3 INIT ─────────────────────────────────────────────────────────────
+// ── V4.4 INIT ─────────────────────────────────────────────────────────────
 
 if (daysInput && daysVal) {
     daysInput.addEventListener('input', (e) => {
@@ -325,4 +329,4 @@ if (daysInput && daysVal) {
 
 document.documentElement.classList.add('dark');
 body.classList.add('dark-mode');
-console.log("Intelligence Interface V4.3 Live (Refined Reading Protocols)");
+console.log("Intelligence Interface V4.4 Live (Human-Centric UX Protocols)");
