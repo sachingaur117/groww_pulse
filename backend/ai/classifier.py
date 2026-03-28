@@ -79,21 +79,24 @@ Write a professional, enterprise-grade narrative report. Be direct, authoritativ
 Format: plain text with clear section headers using ###. No markdown tables.
 IMPORTANT: DO NOT USE ANY EMOJIS in the report. The tone must be strictly professional and suitable for executive review."""
 
-PULSE_USER_TEMPLATE = """Generate a Weekly Product Pulse report for the Groww app.
+PULSE_USER_TEMPLATE = """Generate an executive Weekly Product Pulse report for the Groww app.
 
 Period: {date_range}
 Total reviews analyzed: {total}
 Average rating: {avg_rating} / 5
 
-Theme breakdown:
+Aggregated Data for context (DO NOT write these as a list in the narrative):
 {theme_summary}
 
-For each theme, write:
-1. A 2-sentence summary of the key issues or praise
-2. The dominant sentiment
-3. A one-line PM action item
+Write the report in exactly two sections:
 
-End with a 3-sentence "Overall Signal" paragraph covering the most urgent issue and any green flags."""
+### EXECUTIVE OVERVIEW
+A 2-paragraph high-level summary of product health. The first paragraph should cover key themes and sentiment. The second paragraph should interpret the data and provide strategic context for leadership.
+
+### OVERALL SIGNAL
+A final 3-sentence summary highlighting the most critical fix required this week and any notable green flags.
+
+IMPORTANT: Focus ONLY on these two sections. Do not provide a per-theme breakdown in this text report, as it will be handled by our structured UI cards."""
 
 
 # ── Core: Batch Classifier ────────────────────────────────────────────────────
