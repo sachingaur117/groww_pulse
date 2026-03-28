@@ -59,12 +59,12 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-6 md:p-8 space-y-8 md:space-y-10">
+    <main class="max-w-7xl lg:max-w-6xl mx-auto p-6 md:p-8 space-y-8 md:space-y-12 transition-all">
 
         <!-- Top Row Controls -->
-        <div class="flex flex-col lg:flex-row gap-8 md:gap-8">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
             <!-- Settings -->
-            <section class="flex-[2] p-8 md:p-8 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-8">
+            <section class="flex-[2] p-8 md:p-6 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-8">
                 <div class="flex items-center justify-between border-b border-white/5 pb-6">
                     <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Settings</h3>
                     <span id="days-val" class="text-lg font-black text-emerald-500">2 <span class="text-[10px] text-slate-600 uppercase">Days</span></span>
@@ -125,7 +125,7 @@
         </div>
 
         <!-- Analysis Results -->
-        <div id="results-grid" class="flex flex-col lg:flex-row gap-8 md:gap-8 min-h-[500px]">
+        <div id="results-grid" class="flex flex-col lg:flex-row gap-8 lg:gap-16 min-h-[500px]">
             <!-- Pulse Report -->
             <section class="flex-[1.5] space-y-4 md:space-y-6">
                 <div class="flex items-center justify-between px-2">
@@ -135,7 +135,7 @@
 
                 <!-- Pulse Result Placeholder -->
                 <div id="pulse-container" class="relative group">
-                    <div id="narrative-card" class="p-8 md:p-10 bg-slate-900/90 border border-white/10 rounded-3xl min-h-[450px] flex flex-col justify-center items-center text-center transition-all duration-500">
+                    <div id="narrative-card" class="p-8 md:p-6 bg-slate-900/90 border border-white/10 rounded-3xl min-h-[450px] flex flex-col justify-center items-center text-center transition-all duration-500">
                         <div class="empty-state opacity-40">
                             <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/5">
                                 <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
