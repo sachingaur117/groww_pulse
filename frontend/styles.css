@@ -1,9 +1,8 @@
 /* Tailwind SaaS Redesign (V4) - Custom Animations & Refinements */
 
-@layer base {
-    body {
-        @apply bg-slate-950 text-slate-200;
-    }
+body {
+    background-color: #020617;
+    color: #e2e8f0;
 }
 
 /* Seamless Marquee Animation */
