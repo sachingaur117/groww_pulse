@@ -10,15 +10,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
+<body class="light-mode">
+    <!-- Market Ticker (Apple Stocks style) -->
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker-item"><span class="ticker-logo z"></span> Zerodha <span class="rating">4.3★</span></div>
+            <div class="ticker-item"><span class="ticker-logo a"></span> Angel One <span class="rating">4.2★</span></div>
+            <div class="ticker-item"><span class="ticker-logo u"></span> Upstox <span class="rating">4.4★</span></div>
+            <div class="ticker-item"><span class="ticker-logo p"></span> Paytm Money <span class="rating">4.1★</span></div>
+            <div class="ticker-item"><span class="ticker-logo i"></span> ICICI Direct <span class="rating">3.9★</span></div>
+            <div class="ticker-item"><span class="ticker-logo h"></span> HDFC Sky <span class="rating">4.0★</span></div>
+            <div class="ticker-item"><span class="ticker-logo f"></span> 5paisa <span class="rating">4.1★</span></div>
+            <div class="ticker-item"><span class="ticker-logo k"></span> Kuvera <span class="rating">4.6★</span></div>
+            <div class="ticker-item"><span class="ticker-logo n"></span> INDmoney <span class="rating">4.5★</span></div>
+            <div class="ticker-item"><span class="ticker-logo e"></span> ET Money <span class="rating">4.4★</span></div>
+            <!-- Duplicate for seamless loop -->
+            <div class="ticker-item"><span class="ticker-logo z"></span> Zerodha <span class="rating">4.3★</span></div>
+            <div class="ticker-item"><span class="ticker-logo a"></span> Angel One <span class="rating">4.2★</span></div>
+            <div class="ticker-item"><span class="ticker-logo u"></span> Upstox <span class="rating">4.4★</span></div>
+            <div class="ticker-item"><span class="ticker-logo p"></span> Paytm Money <span class="rating">4.1★</span></div>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="top-nav">
         <div class="logo">
-            <img src="https://static.groww.in/logo-groww-rect.svg" alt="Groww Logo">
+            <img src="/static/assets/groww_logo.png" alt="Groww Logo">
             <h1>Pulse <span class="dim">Analytics</span></h1>
         </div>
-        <div class="user-profile">Product Intelligence Platform</div>
+        <div class="nav-right">
+            <button id="theme-toggle" class="icon-btn" title="Toggle Dark Mode">
+                <span id="theme-icon">🌙</span>
+            </button>
+            <div class="user-profile">Product Intelligence Platform</div>
+        </div>
     </header>
 
     <main class="dashboard">
@@ -28,8 +53,8 @@
             <h2>Analysis Configuration</h2>
             <div class="config-controls">
                 <div class="input-group">
-                    <label for="days-input">Scrape last X days</label>
-                    <input type="number" id="days-input" value="7" min="1" max="365">
+                    <label for="days-input">Scrape past <span id="days-val">7</span> days</label>
+                    <input type="range" id="days-input" value="7" min="1" max="7" class="slider">
                 </div>
                 
                 <div class="input-group">
@@ -87,8 +112,8 @@
                     </div>
 
                     <div class="export-actions">
-                        <button id="export-gdoc-btn" class="btn outline" disabled>📄 Append to Google Doc</button>
-                        <button id="export-gmail-btn" class="btn outline" disabled>📧 Create Gmail Draft</button>
+                        <button id="export-gdoc-btn" class="btn outline" disabled>Append to Google Doc</button>
+                        <button id="export-gmail-btn" class="btn outline" disabled>Create Gmail Draft</button>
                     </div>
                 </div>
             </section>

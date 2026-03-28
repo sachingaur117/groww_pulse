@@ -1,12 +1,17 @@
-// app.js — Phase 4 Frontend Logic
+// app.js — Phase 4 Frontend Logic (V2 Enterprise)
 
 const BASE_URL = ""; // Empty string for relative pathing on Render/Localhost
 
 // DOM Elements
 const daysInput = document.getElementById('days-input');
+const daysVal = document.getElementById('days-val'); // Slider display
 const feeSelect = document.getElementById('fee-select');
 const runBtn = document.getElementById('run-btn');
 const statusBar = document.getElementById('status-bar');
+
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const body = document.body;
 
 const narrativeCard = document.getElementById('narrative-card');
 const themesGrid = document.getElementById('themes-grid');
@@ -47,7 +52,7 @@ runBtn.addEventListener('click', async () => {
 
     try {
         // Step 1: Scrape
-        setStatus(`🔍 Scraping reviews for the last ${days} day(s)...`);
+        setStatus(`Scraping reviews for the last ${days} day(s)...`);
         const scrapeRes = await fetch(`${BASE_URL}/scrape?days=${days}`);
         const scrapeData = await scrapeRes.json();
         
@@ -56,7 +61,7 @@ runBtn.addEventListener('click', async () => {
         const { csv_filename, row_count } = scrapeData;
         
         // Step 2 & 3 in parallel: AI Analysis & Fee Explainer
-        setStatus(`🤖 Scraped ${row_count} reviews. Running Gemini analysis...`);
+        setStatus(`Scraped ${row_count} reviews. Running Gemini analysis...`);
         
         const [analyzeRes, feeRes] = await Promise.all([
             fetch(`${BASE_URL}/analyze?csv_filename=${csv_filename}`, { method: 'POST' }),
@@ -79,7 +84,7 @@ runBtn.addEventListener('click', async () => {
         gdocBtn.disabled = false;
         gmailBtn.disabled = false;
 
-        setStatus(`✅ Analysis complete! Ready for Review & Export.`);
+        setStatus(`Analysis complete! Ready for Review & Export.`);
         
     } catch (err) {
         console.error(err);
@@ -154,7 +159,7 @@ function renderFee(data) {
     `;
 }
 
-// ── EXPORT MODAL (Phase 5 Prep) ──────────────────────────────────────────────
+// ── EXPORT MODAL ─────────────────────────────────────────────────────────────
 const approvalModal = document.getElementById('approval-modal');
 const modalCancel = document.getElementById('modal-cancel');
 const modalConfirm = document.getElementById('modal-confirm');
@@ -205,7 +210,7 @@ modalConfirm.addEventListener('click', async () => {
 
     try {
         if (currentExportAction === 'gdoc') {
-            setStatus("📄 Exporting to Google Docs...");
+            setStatus("Exporting to Google Docs...");
             const res = await fetch(`${BASE_URL}/export-doc`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -213,10 +218,10 @@ modalConfirm.addEventListener('click', async () => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Export failed');
-            setStatus(`✅ Successfully appended to Google Doc (${data.doc_id})`);
+            setStatus(`Successfully appended to Google Doc (${data.doc_id})`);
             
         } else if (currentExportAction === 'gmail') {
-            setStatus("📧 Creating Gmail Draft...");
+            setStatus("Creating Gmail Draft...");
             const res = await fetch(`${BASE_URL}/export-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -224,10 +229,42 @@ modalConfirm.addEventListener('click', async () => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Draft creation failed');
-            setStatus(`✅ Gmail draft created (ID: ${data.draft_id})`);
+            setStatus(`Gmail draft created (ID: ${data.draft_id})`);
         }
     } catch (err) {
         console.error(err);
-        setStatus(`❌ Export Error: ${err.message}`, true);
+        setStatus(`Export Error: ${err.message}`, true);
     }
 });
+
+// ── V2: DASHBOARD LOGIC ──────────────────────────────────────────────────────
+
+// 1. Slider Synchronisation
+if (daysInput && daysVal) {
+    daysInput.addEventListener('input', (e) => {
+        daysVal.textContent = e.target.value;
+    });
+}
+
+// 2. Dark Mode Toggle
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        body.classList.replace('light-mode', 'dark-mode');
+        themeIcon.textContent = '☀️';
+    }
+}
+
+themeToggle.addEventListener('click', () => {
+    if (body.classList.contains('light-mode')) {
+        body.classList.replace('light-mode', 'dark-mode');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        body.classList.replace('dark-mode', 'light-mode');
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+    }
+});
+
+initTheme();
