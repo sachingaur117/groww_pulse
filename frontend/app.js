@@ -148,9 +148,9 @@ function renderPulse(report) {
     pulseContainer.innerHTML = '';
     
     const narrativeEl = document.createElement('div');
-    narrativeEl.className = "p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[300px] text-left transition-all duration-500";
+    narrativeEl.className = "p-8 md:p-10 bg-slate-900 border border-white/10 rounded-3xl min-h-[300px] text-left transition-all duration-500";
     narrativeEl.innerHTML = `
-        <div class="prose prose-invert max-w-none text-slate-300 text-sm md:text-base leading-relaxed font-medium">
+        <div class="prose prose-invert max-w-none text-slate-300 text-base md:text-lg leading-relaxed font-medium">
             ${parseNarrativeMarkdown(report.narrative)}
         </div>
     `;
