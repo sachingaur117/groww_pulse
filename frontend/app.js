@@ -1,10 +1,10 @@
-// app.js — Phase 4 Frontend Logic (V2 Enterprise)
+// app.js — Phase 4 Frontend Logic (V4 SaaS Redesign)
 
 const BASE_URL = ""; // Empty string for relative pathing on Render/Localhost
 
 // DOM Elements
 const daysInput = document.getElementById('days-input');
-const daysVal = document.getElementById('days-val'); // Slider display
+const daysVal = document.getElementById('days-val'); 
 const feeSelect = document.getElementById('fee-select');
 const runBtn = document.getElementById('run-btn');
 const statusBar = document.getElementById('status-bar');
@@ -33,12 +33,18 @@ let lastFeeReport = null;
 function setStatus(msg, isError = false) {
     statusBar.textContent = msg;
     statusBar.classList.remove('hidden');
-    statusBar.style.borderLeftColor = isError ? 'var(--accent)' : 'var(--primary)';
+    if (isError) {
+        statusBar.classList.replace('text-emerald-500', 'text-red-400');
+        statusBar.classList.replace('border-emerald-500', 'border-red-400');
+        statusBar.classList.replace('bg-emerald-500/10', 'bg-red-400/10');
+    } else {
+        statusBar.classList.add('text-emerald-500', 'border-emerald-500', 'bg-emerald-500/10');
+    }
 }
 
 function parseNarrativeMarkdown(text) {
-    // Basic Markdown H3 parsing for the UI
-    return text.replace(/### (.*?)\n/g, '<h3>$1</h3>\n');
+    // Premium H3 parsing with Tailwind classes
+    return text.replace(/### (.*?)\n/g, '<h3 class="text-xl font-bold text-white mb-4 mt-6 first:mt-0">$1</h3>\n');
 }
 
 // ── MAIN ANALYSIS FLOW ───────────────────────────────────────────────────────
@@ -49,6 +55,14 @@ runBtn.addEventListener('click', async () => {
     runBtn.disabled = true;
     gdocBtn.disabled = true;
     gmailBtn.disabled = true;
+    
+    // UI Loading State
+    narrativeCard.innerHTML = `
+        <div class="flex flex-col items-center justify-center animate-pulse">
+            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-slate-400 font-medium">Crunching executive insights...</p>
+        </div>
+    `;
 
     try {
         // Step 1: Scrape
@@ -61,7 +75,7 @@ runBtn.addEventListener('click', async () => {
         const { csv_filename, row_count } = scrapeData;
         
         // Step 2 & 3 in parallel: AI Analysis & Fee Explainer
-        setStatus(`Scraped ${row_count} reviews. Running Gemini analysis...`);
+        setStatus(`Scraped ${row_count} reviews. Running Intelligence analysis...`);
         
         const [analyzeRes, feeRes] = await Promise.all([
             fetch(`${BASE_URL}/analyze?csv_filename=${csv_filename}`, { method: 'POST' }),
@@ -89,6 +103,7 @@ runBtn.addEventListener('click', async () => {
     } catch (err) {
         console.error(err);
         setStatus(err.message, true);
+        narrativeCard.innerHTML = `<p class="text-red-400 font-bold">${err.message}</p>`;
     } finally {
         runBtn.disabled = false;
     }
@@ -96,15 +111,17 @@ runBtn.addEventListener('click', async () => {
 
 // ── RENDERERS ────────────────────────────────────────────────────────────────
 function renderPulse(report) {
-    pulseMeta.textContent = `${report.total_reviews} reviews analyzed • Growth Rating: ${report.avg_rating}`;
+    pulseMeta.textContent = `${report.total_reviews} reviews • Rating: ${report.avg_rating}★`;
     pulseMeta.classList.remove('hidden');
     
-    narrativeCard.innerHTML = parseNarrativeMarkdown(report.narrative);
+    // Remove centered centering for actual report
+    narrativeCard.classList.replace('flex', 'block');
+    narrativeCard.classList.remove('justify-center', 'items-center', 'text-center');
+    narrativeCard.innerHTML = `<div class="prose prose-invert max-w-none text-slate-300">${parseNarrativeMarkdown(report.narrative)}</div>`;
     
     themesGrid.innerHTML = '';
     themesGrid.classList.remove('hidden');
     
-    // Sort themes by volume
     const sortedThemes = Object.entries(report.theme_data)
         .sort((a, b) => b[1].count - a[1].count);
 
@@ -117,19 +134,24 @@ function renderPulse(report) {
             if (count > maxCount) { maxCount = count; domSentiment = s; }
         }
 
-        const sentimentClass = `sentiment-${domSentiment.toLowerCase()}`;
-        const quotesHtml = data.top_quotes.slice(0, 2).map(q => `<div class="quote">"${q}"</div>`).join('');
+        let badgeClass = "bg-slate-500/10 text-slate-400"; // Neutral
+        if (domSentiment === "Positive") badgeClass = "bg-emerald-500/10 text-emerald-500";
+        if (domSentiment === "Negative") badgeClass = "bg-red-400/10 text-red-400";
+
+        const quotesHtml = data.top_quotes.slice(0, 2).map(q => 
+            `<div class="text-xs italic text-slate-500 border-l-2 border-white/5 pl-3 mt-3 py-1 bg-white/5 rounded-r-md">"${q}"</div>`
+        ).join('');
 
         const card = document.createElement('div');
-        card.className = 'theme-card';
+        card.className = 'p-5 bg-slate-900/60 border border-white/10 rounded-2xl hover:border-emerald-500/30 transition-all group';
         card.innerHTML = `
-            <div class="theme-label">
-                <h4>${theme}</h4>
-                <span class="sentiment-badge ${sentimentClass}">${domSentiment}</span>
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-slate-200 group-hover:text-emerald-500 transition-colors uppercase tracking-tight text-sm">${theme}</h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${badgeClass}">${domSentiment}</span>
             </div>
-            <div class="theme-meta">
-                <span>${data.count} reviews</span>
-                <span>${data.avg_rating} Avg. Rating</span>
+            <div class="flex items-center space-x-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <span>${data.count} Data Points</span>
+                <span>${data.avg_rating}★ Rating</span>
             </div>
             ${quotesHtml}
         `;
@@ -139,22 +161,25 @@ function renderPulse(report) {
 
 function renderFee(data) {
     const listHtml = data.bullets.map(b => {
-        // Highlight the bold keys like "1. What it is:"
         const parts = b.split(':');
         if (parts.length > 1) {
-            return `<li><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</li>`;
+            return `<li class="flex items-start space-x-2"><span class="text-emerald-500 mt-1">•</span><span><strong class="text-slate-200">${parts[0]}:</strong>${parts.slice(1).join(':')}</span></li>`;
         }
-        return `<li>${b}</li>`;
+        return `<li class="flex items-start space-x-2"><span class="text-emerald-500 mt-1">•</span><span>${b}</span></li>`;
     }).join('');
 
+    feeCard.classList.remove('flex', 'justify-center', 'items-center', 'text-center');
     feeCard.innerHTML = `
-        <h3 style="color:var(--primary); margin-bottom:1rem;">${data.fee_type}</h3>
-        <ul class="fee-list">
+        <h4 class="text-emerald-500 font-black uppercase tracking-widest text-[10px] mb-4">Strategic Matrix: ${data.fee_type}</h4>
+        <ul class="space-y-4 text-sm text-slate-400">
             ${listHtml}
         </ul>
-        <div style="margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-            <div style="font-size:0.8rem; color:var(--text-dim);">Last verified: ${data.last_checked}</div>
-            <a href="${data.source_url}" target="_blank" class="source-link">View official SEBI/AMFI source ↗</a>
+        <div class="mt-8 pt-6 border-t border-white/5 space-y-3">
+            <div class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Verification Date: ${data.last_checked}</div>
+            <a href="${data.source_url}" target="_blank" class="inline-flex items-center space-x-2 text-xs font-bold text-emerald-500 hover:text-emerald-400 transition-colors">
+                <span>SEBI/AMFI Intelligence Source</span>
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
         </div>
     `;
 }
@@ -171,10 +196,10 @@ gmailBtn.addEventListener('click', () => {
     currentExportAction = 'gmail';
     const custom = customRecipientsInput.value.trim();
     if (custom) {
-        modalMsg.textContent = `Send analysis to custom recipients: ${custom}?`;
+        modalMsg.textContent = `Pushing Intelligence to executive channel: ${custom}`;
         modalPasswordGroup.classList.remove('hidden');
     } else {
-        modalMsg.textContent = "Create a draft in Gmail with full analysis via MCP tool?";
+        modalMsg.textContent = "Initiating automated Gmail draft generation via MCP protocol.";
         modalPasswordGroup.classList.add('hidden');
     }
     modalPasswordInput.value = '';
@@ -183,7 +208,7 @@ gmailBtn.addEventListener('click', () => {
 
 gdocBtn.addEventListener('click', () => {
     currentExportAction = 'gdoc';
-    modalMsg.textContent = "Append 'Weekly Product Pulse' to Google Doc via MCP tool?";
+    modalMsg.textContent = "Appending Product Intelligence to Global Documentation repository.";
     modalPasswordGroup.classList.add('hidden');
     approvalModal.classList.remove('hidden');
 });
@@ -197,7 +222,7 @@ modalConfirm.addEventListener('click', async () => {
     approvalModal.classList.add('hidden');
     
     if (!lastPulseReport || !lastFeeReport) {
-        setStatus("No data to export. Run analysis first.", true);
+        setStatus("Matrix Empty. Run analysis first.", true);
         return;
     }
     
@@ -210,7 +235,7 @@ modalConfirm.addEventListener('click', async () => {
 
     try {
         if (currentExportAction === 'gdoc') {
-            setStatus("Exporting to Google Docs...");
+            setStatus("Syncing with Google Docs repository...");
             const res = await fetch(`${BASE_URL}/export-doc`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -218,26 +243,26 @@ modalConfirm.addEventListener('click', async () => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || 'Export failed');
-            setStatus(`Successfully appended to Google Doc (${data.doc_id})`);
+            setStatus(`Handshake success (${data.doc_id})`);
             
         } else if (currentExportAction === 'gmail') {
-            setStatus("Creating Gmail Draft...");
+            setStatus("Transmitting Gmail Intelligence...");
             const res = await fetch(`${BASE_URL}/export-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || 'Draft creation failed');
-            setStatus(`Gmail draft created (ID: ${data.draft_id})`);
+            if (!res.ok) throw new Error(data.detail || 'Transmission failed');
+            setStatus(`Transmission complete (ID: ${data.draft_id})`);
         }
     } catch (err) {
         console.error(err);
-        setStatus(`Export Error: ${err.message}`, true);
+        setStatus(`Intel Error: ${err.message}`, true);
     }
 });
 
-// ── V2: DASHBOARD LOGIC ──────────────────────────────────────────────────────
+// ── V4: DASHBOARD UX ────────────────────────────────────────────────────────
 
 // 1. Slider Synchronisation
 if (daysInput && daysVal) {
@@ -246,24 +271,33 @@ if (daysInput && daysVal) {
     });
 }
 
-// 2. Dark Mode Toggle
+// 2. Theme Toggle (Tailwind Focus)
 function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        body.classList.replace('light-mode', 'dark-mode');
+    const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark for SaaS look
+    if (savedTheme === 'light') {
+        body.classList.remove('dark-mode');
+        body.classList.add('bg-slate-50', 'text-slate-900');
+        body.classList.remove('bg-slate-950', 'text-slate-200');
+        themeIcon.textContent = '🌙';
+    } else {
+        body.classList.add('dark-mode');
         themeIcon.textContent = '☀️';
     }
 }
 
 themeToggle.addEventListener('click', () => {
-    if (body.classList.contains('light-mode')) {
-        body.classList.replace('light-mode', 'dark-mode');
-        themeIcon.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
-    } else {
-        body.classList.replace('dark-mode', 'light-mode');
+    if (body.classList.contains('dark-mode')) {
+        body.classList.remove('dark-mode');
+        body.classList.replace('bg-slate-950', 'bg-slate-50');
+        body.classList.replace('text-slate-200', 'text-slate-900');
         themeIcon.textContent = '🌙';
         localStorage.setItem('theme', 'light');
+    } else {
+        body.classList.add('dark-mode');
+        body.classList.replace('bg-slate-50', 'bg-slate-950');
+        body.classList.replace('text-slate-900', 'text-slate-200');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
     }
 });
 
