@@ -58,6 +58,7 @@ app.add_middleware(
 # ── Phase 1 Endpoints ─────────────────────────────────────────────────────────
 
 @app.get("/health", tags=["System"])
+@app.head("/health", include_in_schema=False)
 def health_check():
     """Simple health check."""
     return {"status": "ok", "service": "GenAI Product Pulse API"}
@@ -296,5 +297,6 @@ if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
 
     @app.get("/", include_in_schema=False)
+    @app.head("/", include_in_schema=False)
     def serve_index():
         return FileResponse(str(frontend_dir / "index.html"))
