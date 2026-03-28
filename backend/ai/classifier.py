@@ -3,8 +3,8 @@ classifier.py — AI Classification & Weekly Product Pulse Engine
 
 Uses Gemini (gemini-2.5-flash) to:
   1. Classify each review into one of 7 themes with sentiment + confidence
-  2. Aggregate results by theme (Robust String Matching)
-  3. Generate the narrative Weekly Product Pulse report (Executive Focus)
+  2. Aggregate results by theme (Strict Canonical Mapping)
+  3. Generate the narrative Weekly Product Pulse report (High Impact)
 
 Usage (importable):
     from backend.ai.classifier import classify_reviews, pulse_engine
@@ -38,68 +38,82 @@ THEMES = [
     "Reliability",
 ]
 
+# Mapping layer for raw AI classification strings to canonical THEMES
+THEME_MAP = {
+    "ui/ux": "UI/UX", "design": "UI/UX", "navigation": "UI/UX", "layout": "UI/UX", "user experience": "UI/UX", "ux": "UI/UX",
+    "performance": "Performance", "speed": "Performance", "crashes": "Performance", "lag": "Performance", "slow": "Performance",
+    "hidden charges": "Hidden Charges", "fees": "Hidden Charges", "charges": "Hidden Charges", "pricing": "Hidden Charges",
+    "onboarding": "Onboarding", "registration": "Onboarding", "kyc": "Onboarding", "signup": "Onboarding",
+    "features": "Features", "new features": "Features", "tools": "Features", "functionality": "Features",
+    "information visibility": "Information Visibility", "portfolio": "Information Visibility", "nav": "Information Visibility", "clarity": "Information Visibility", "visibility": "Information Visibility",
+    "reliability": "Reliability", "trust": "Reliability", "failed transaction": "Reliability", "accuracy": "Reliability",
+}
+
 BATCH_SIZE = 20          # reviews per Gemini call
 RETRY_LIMIT = 3          # retries on transient failure
 RETRY_DELAY = 4          # seconds between retries
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def normalize_theme(raw_theme: str) -> str:
+    """Map raw AI classification to one of the 7 canonical themes."""
+    raw_lower = str(raw_theme).strip().lower()
+    # 1. Direct match in map
+    if raw_lower in THEME_MAP:
+        return THEME_MAP[raw_lower]
+    # 2. Loose keyword match
+    for keyword, canonical in THEME_MAP.items():
+        if keyword in raw_lower:
+            return canonical
+    # 3. Default fallback
+    return "Reliability"
+
 # ── Prompts ───────────────────────────────────────────────────────────────────
 
-CLASSIFIER_SYSTEM = """You are a Product Intelligence Analyst specializing in mobile app reviews for a mutual fund / investment platform.
+CLASSIFIER_SYSTEM = """You are a Product Intelligence Analyst. 
+Classify the given mutual fund app reviews into exactly one of these 7 themes:
+- UI/UX: Design, navigation, layout
+- Performance: Speed, crashes, loading
+- Hidden Charges: Unclear fees, deductions
+- Onboarding: KYC, registration, login
+- Features: Missing or requested tools
+- Information Visibility: Portfolio display, NAV clarity, statements
+- Reliability: Trust, transaction failures, data accuracy
 
-You will be given a JSON array of reviews. For each review, classify it into exactly one of these 7 themes:
-- UI/UX: App design, navigation, layout issues or praise
-- Performance: Crashes, slow loading, freezes, battery drain
-- Hidden Charges: Unexpected fees, unclear deductions, fee confusion
-- Onboarding: KYC, registration, first-time setup experience
-- Features: Missing, broken, or requested product features
-- Information Visibility: Portfolio display, NAV clarity, statement access, transparency
-- Reliability: Failed transactions, incorrect data, trust issues, money not credited
-
-Also classify the sentiment as: positive | negative | neutral
-And provide a confidence score between 0.0 and 1.0.
-
-Respond ONLY with a valid JSON array. No markdown, no explanation. Each element:
+Respond ONLY with a valid JSON array. Each element:
 {
   "review_id": "<id>",
-  "theme": "<theme>",
+  "theme": "<UI/UX|Performance|Hidden Charges|Onboarding|Features|Information Visibility|Reliability>",
   "sentiment": "<positive|negative|neutral>",
   "confidence": <float>
 }"""
 
-CLASSIFIER_USER_TEMPLATE = """Classify these {n} reviews:
+PULSE_SYSTEM = """You are a Senior Product Manager at Groww writing a punchy, data-driven Weekly Product Pulse report.
+AVOID generic corporate-speak or filler like "standard of user satisfaction" or "proactive stance."
+Focus on SHARP, action-oriented signals. Be direct. Use numbers. Identify exactly what is breaking or winning.
+Format: plain text with headers ###. NO EMOJIS."""
 
-{reviews_json}"""
-
-
-PULSE_SYSTEM = """You are a Senior Product Manager at Groww writing an internal Weekly Product Pulse report for leadership.
-You will receive aggregated data about app reviews segmented by theme.
-Write a professional, enterprise-grade narrative report. Be direct, authoritative, and data-driven. Use numbers and percentages where appropriate.
-Format: plain text with clear section headers using ###. No markdown tables.
-IMPORTANT: DO NOT USE ANY EMOJIS in the report. The tone must be strictly professional and suitable for executive review."""
-
-PULSE_USER_TEMPLATE = """Generate an executive Weekly Product Pulse report for the Groww app.
+PULSE_USER_TEMPLATE = """Generate a high-impact Product Pulse report for the Groww app.
 
 Period: {date_range}
 Total reviews analyzed: {total}
 Average rating: {avg_rating} / 5
 
 ### PULSE OVERVIEW
-A 2-paragraph high-level summary. Focus on the core user experience and sentiment trends.
+A 1-paragraph summary of the core sentiment shift and the #1 most talked about issue. Be blunt.
 
 ### KEY SIGNALS
-A 3-sentence summary of the most urgent action and positive wins.
+List 3 specific, data-backed findings. (e.g., "Performance mentions up 12% due to login lag").
 
-IMPORTANT: Focus ONLY on these two sections. Do not provide a per-theme breakdown in this text report, as it will be handled by our structured UI cards."""
+IMPORTANT: NO per-theme breakdown here. Keep it to these 2 sections."""
 
 
 # ── Core: Batch Classifier ────────────────────────────────────────────────────
 
 def _parse_json_from_response(text: str) -> list:
-    """Extract JSON array from Gemini response, tolerating markdown fences."""
     text = text.strip()
-    # Strip ```json ... ``` fences if present
     fenced = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
     if fenced:
         text = fenced.group(1)
@@ -107,15 +121,11 @@ def _parse_json_from_response(text: str) -> list:
 
 
 def classify_batch(batch: list[dict], client) -> list[dict]:
-    """Send one batch of reviews to Gemini for classification."""
     reviews_for_prompt = [
         {"review_id": r["review_id"], "review_text": r["review_text"]}
         for r in batch
     ]
-    prompt = CLASSIFIER_USER_TEMPLATE.format(
-        n=len(batch),
-        reviews_json=json.dumps(reviews_for_prompt, ensure_ascii=False, indent=2),
-    )
+    prompt = f"Classify {len(batch)} reviews:\n\n{json.dumps(reviews_for_prompt, ensure_ascii=False, indent=2)}"
 
     for attempt in range(1, RETRY_LIMIT + 1):
         try:
@@ -131,23 +141,10 @@ def classify_batch(batch: list[dict], client) -> list[dict]:
             if attempt < RETRY_LIMIT:
                 time.sleep(RETRY_DELAY * attempt)
             else:
-                print(f"\n⚠️  Batch failed after {RETRY_LIMIT} retries: {exc}")
-                # Return neutral fallback for each review in the batch
-                return [
-                    {
-                        "review_id": r["review_id"],
-                        "theme": "Reliability",
-                        "sentiment": "neutral",
-                        "confidence": 0.0,
-                    }
-                    for r in batch
-                ]
+                return [{"review_id": r["review_id"], "theme": "Reliability", "sentiment": "neutral", "confidence": 0.0} for r in batch]
 
 
 def classify_reviews(csv_path: str) -> dict:
-    """
-    Classify all reviews in a CSV. Adds theme/sentiment/confidence columns.
-    """
     client = genai.GenerativeModel(MODEL)
     df = pd.read_csv(csv_path)
 
@@ -164,7 +161,7 @@ def classify_reviews(csv_path: str) -> dict:
         results = classify_batch(batch, client)
         for item in results:
             classifications[item["review_id"]] = {
-                "theme":      item.get("theme", "Reliability"),
+                "theme":      normalize_theme(item.get("theme", "Reliability")),
                 "sentiment":  item.get("sentiment", "neutral"),
                 "confidence": float(item.get("confidence", 0.0)),
             }
@@ -180,7 +177,6 @@ def classify_reviews(csv_path: str) -> dict:
     df.to_csv(enriched_path, index=False, encoding="utf-8")
 
     return {
-        "enriched_csv_path":     str(enriched_path),
         "enriched_csv_filename": enriched_filename,
         "row_count":             len(df),
         "theme_counts":          df["theme"].value_counts().to_dict(),
@@ -191,11 +187,9 @@ def classify_reviews(csv_path: str) -> dict:
 # ── Core: Pulse Engine ────────────────────────────────────────────────────────
 
 def _build_theme_summary(df: pd.DataFrame) -> str:
-    """Summarise each theme for the pulse prompt."""
     lines = []
     for theme in THEMES:
-        # ROBUST MATCHING
-        sub = df[df["theme"].astype(str).str.strip().str.lower() == theme.lower()]
+        sub = df[df["theme"] == theme]
         if sub.empty:
             continue
         count = len(sub)
@@ -204,12 +198,10 @@ def _build_theme_summary(df: pd.DataFrame) -> str:
         avg_rating = round(sub["rating"].mean(), 2)
         quotes = (
             sub["review_text"]
-            .dropna()
-            .str.strip()
+            .dropna().str.strip()
             .loc[sub["review_text"].str.len() > 10]
             .sort_values(key=lambda s: s.str.len())
-            .head(2)
-            .tolist()
+            .head(2).tolist()
         )
         quote_str = " | ".join(f'"{q[:120]}"' for q in quotes)
         lines.append(f"[{theme}] — {count} reviews | {avg_rating}★ | {dominant} sentiment | Quotes: {quote_str}")
@@ -246,10 +238,9 @@ def pulse_engine(classify_result: dict) -> dict:
             else:
                 narrative = f"[Pulse generation failed: {exc}]"
 
-    # ── Per-theme structured data (Robust Aggregation) ────────────────────────
     theme_data = {}
     for theme in THEMES:
-        sub = df[df["theme"].astype(str).str.strip().str.lower() == theme.lower()]
+        sub = df[df["theme"] == theme]
         if sub.empty:
             theme_data[theme] = {"count": 0, "avg_rating": None, "sentiment_dist": {}, "top_quotes": []}
             continue

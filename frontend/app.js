@@ -1,4 +1,4 @@
-// app.js — Phase 4.6 Bug Fixes & UX Cleanup
+// app.js — Phase 4.7 Intelligence Mapping Fix
 
 const BASE_URL = ""; 
 
@@ -30,7 +30,6 @@ let lastFeeReport = null;
 
 // ── UI INTERACTIVITY ─────────────────────────────────────────────────────────
 
-// SLIDER FIX: Update displayed days in real-time
 daysInput.addEventListener('input', (e) => {
     daysVal.innerHTML = `${e.target.value} <span class="text-[10px] text-slate-600 uppercase">Days</span>`;
 });
@@ -51,18 +50,16 @@ async function safeFetchJson(url, options = {}) {
     const contentType = res.headers.get("content-type");
     
     if (!res.ok) {
-        // If it's a 404 or 500, it might return HTML depending on the platform
         if (contentType && contentType.includes("application/json")) {
             const errData = await res.json();
             throw new Error(errData.detail || `Server Error (${res.status})`);
         } else {
-            // Highly likely HTML error page
-            throw new Error(`Connectivity Issue: Backend returned ${res.status} (Non-JSON). Check if server is still deploying.`);
+            throw new Error(`Connectivity Issue: Backend returned ${res.status}. Server may be redeploying.`);
         }
     }
     
     if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Invalid Response: Expected JSON but received HTML/Plaintext. Verify endpoint URL.");
+        throw new Error("Invalid Response: Expected JSON. Check Render dashboard logs.");
     }
     
     return await res.json();
@@ -109,27 +106,26 @@ runBtn.addEventListener('click', async () => {
     runBtn.disabled = true;
     lockExportPanel();
     
-    narrativeCard.innerHTML = `
-        <div class="flex flex-col items-center justify-center animate-pulse">
-            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Analyzing Intelligence...</p>
+    pulseContainer.innerHTML = `
+        <div id="narrative-card" class="p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[400px] flex flex-col justify-center items-center text-center">
+            <div class="flex flex-col items-center justify-center animate-pulse">
+                <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Executing Intelligence Mapping...</p>
+            </div>
         </div>
     `;
     feeCard.innerHTML = `
         <div class="flex flex-col items-center justify-center animate-pulse">
             <div class="w-12 h-12 border-4 border-slate-700 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Syncing Insights...</p>
+            <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Securing Insights...</p>
         </div>
     `;
 
     try {
         setStatus(`ORCHESTRATING DATA FLOW: ${days} DAY PERSPECTIVE...`);
-        
-        // Use safeFetchJson to avoid "Unexpected token <" error silently failing
         const scrapeData = await safeFetchJson(`${BASE_URL}/scrape?days=${days}`);
 
-        setStatus(`HARVESTED ${scrapeData.row_count} DATA POINTS. EXECUTING AI ANALYSIS...`);
-        
+        setStatus(`HARVESTED ${scrapeData.row_count} DATA POINTS. GENERATING HIGH-IMPACT PULSE...`);
         const [analyzeData, feeData] = await Promise.all([
             safeFetchJson(`${BASE_URL}/analyze?csv_filename=${scrapeData.csv_filename}`, { method: 'POST' }),
             safeFetchJson(`${BASE_URL}/fee-explain?fee_type=${encodeURIComponent(feeType)}`, { method: 'POST' })
@@ -141,19 +137,19 @@ runBtn.addEventListener('click', async () => {
         lastPulseReport = analyzeData.pulse_report;
         lastFeeReport = feeData.data;
         unlockExportPanel();
-        setStatus(`ANALYSIS READY. PROTOCOL COMPLETE.`);
+        setStatus(`PROTOCOL COMPLETE. INTELLIGENCE READY.`);
         
     } catch (err) {
         console.error(err);
         setStatus(`SYSTEM ERROR: ${err.message}`, true);
-        
-        // Reset landing state if it fails
-        narrativeCard.innerHTML = `
-            <div class="empty-state opacity-40">
-                <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/5">
-                    <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        pulseContainer.innerHTML = `
+            <div id="narrative-card" class="p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[400px] flex flex-col justify-center items-center text-center">
+                <div class="empty-state opacity-40">
+                    <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/5">
+                        <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-red-500">${err.message.includes('No reviews') ? 'No Recent Reviews Found' : 'Analysis Halted: Check Logs'}</p>
                 </div>
-                <p class="text-xs font-black uppercase tracking-[0.2em] text-red-500">Analysis Halted: Check Logs</p>
             </div>
         `;
     } finally {
@@ -165,6 +161,7 @@ runBtn.addEventListener('click', async () => {
 function renderPulse(report) {
     pulseContainer.innerHTML = '';
     
+    // Narrative Section
     const narrativeEl = document.createElement('div');
     narrativeEl.className = "p-10 bg-slate-900 border border-white/10 rounded-2xl min-h-[300px] text-left transition-all duration-500";
     narrativeEl.innerHTML = `
@@ -176,16 +173,27 @@ function renderPulse(report) {
     
     pulseMeta.classList.remove('hidden');
     
+    // Theme Cards Section
     const sortedThemes = Object.entries(report.theme_data || {})
         .filter(([_, data]) => data.count > 0)
         .sort((a, b) => b[1].count - a[1].count);
 
+    if (sortedThemes.length === 0) {
+        const emptyThemes = document.createElement('div');
+        emptyThemes.className = "p-10 bg-slate-900/40 border border-white/5 border-dashed rounded-2xl flex flex-col items-center justify-center text-center";
+        emptyThemes.innerHTML = `
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">No cross-theme patterns detected in this dataset</p>
+        `;
+        pulseContainer.appendChild(emptyThemes);
+        return;
+    }
+
     for (const [theme, data] of sortedThemes) {
         let domSentiment = "Neutral";
         let maxCount = -1;
-        for (const [sentiment, count] of Object.entries(data.sentiment_dist)) {
+        Object.entries(data.sentiment_dist).forEach(([sentiment, count]) => {
             if (count > maxCount) { maxCount = count; domSentiment = sentiment; }
-        }
+        });
 
         let badgeClass = "bg-slate-500/10 text-slate-400";
         if (domSentiment.toLowerCase() === "positive") badgeClass = "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
@@ -286,4 +294,4 @@ modalConfirm.addEventListener('click', async () => {
 
 document.documentElement.classList.add('dark');
 body.classList.add('dark-mode');
-console.log("Intelligence Interface V4.6 Live (UI Resilience Protocol)");
+console.log("Intelligence Interface V4.7 Live (Theme Mapping Protocol)");
