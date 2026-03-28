@@ -78,6 +78,18 @@
                 <h2 class="mt-4">Export & Share</h2>
                 <div class="card export-card">
                     <p class="text-sm dim mb-3">Review outputs above before exporting to MCP tools.</p>
+                    
+                    <div id="gmail-custom-controls" class="mb-3">
+                        <div class="input-group mb-2">
+                            <label for="custom-recipients">Custom Recipients (optional, comma-separated)</label>
+                            <input type="text" id="custom-recipients" placeholder="e.g. boss@groww.in, team@groww.in">
+                        </div>
+                        <div id="password-group" class="input-group hidden">
+                            <label for="export-password">Export Password (required for custom emails)</label>
+                            <input type="password" id="export-password" placeholder="••••••••">
+                        </div>
+                    </div>
+
                     <div class="export-actions">
                         <button id="export-gdoc-btn" class="btn outline" disabled>📄 Append to Google Doc</button>
                         <button id="export-gmail-btn" class="btn outline" disabled>📧 Create Gmail Draft</button>

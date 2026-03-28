@@ -16,6 +16,10 @@ const feeCard = document.getElementById('fee-card');
 const gdocBtn = document.getElementById('export-gdoc-btn');
 const gmailBtn = document.getElementById('export-gmail-btn');
 
+const customRecipientsInput = document.getElementById('custom-recipients');
+const exportPasswordInput = document.getElementById('export-password');
+const passwordGroup = document.getElementById('password-group');
+
 // State holding exportable data
 let lastPulseReport = null;
 let lastFeeReport = null;
@@ -165,8 +169,23 @@ gdocBtn.addEventListener('click', () => {
 
 gmailBtn.addEventListener('click', () => {
     currentExportAction = 'gmail';
-    modalMsg.textContent = "Create a draft in Gmail with full analysis via MCP tool?";
+    const custom = customRecipientsInput.value.trim();
+    if (custom) {
+        modalMsg.textContent = `Send analysis to custom recipients: ${custom}? (Password required)`;
+    } else {
+        modalMsg.textContent = "Create a draft in Gmail with full analysis via MCP tool?";
+    }
     approvalModal.classList.remove('hidden');
+});
+
+// Toggle password field based on custom recipients
+customRecipientsInput.addEventListener('input', () => {
+    if (customRecipientsInput.value.trim()) {
+        passwordGroup.classList.remove('hidden');
+    } else {
+        passwordGroup.classList.add('hidden');
+        exportPasswordInput.value = '';
+    }
 });
 
 modalCancel.addEventListener('click', () => {
@@ -184,7 +203,9 @@ modalConfirm.addEventListener('click', async () => {
     
     const payload = {
         pulse_report: lastPulseReport,
-        fee_report: lastFeeReport
+        fee_report: lastFeeReport,
+        custom_recipients: customRecipientsInput.value.trim(),
+        custom_export_password: exportPasswordInput.value
     };
 
     try {

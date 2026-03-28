@@ -37,6 +37,8 @@ from backend.mcp.gmail_tool import create_draft
 class ExportData(BaseModel):
     pulse_report: dict
     fee_report: dict
+    custom_recipients: str = ""
+    custom_export_password: str = ""
 
 # ── App Init ──────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -256,15 +258,34 @@ def export_doc(data: ExportData):
 @app.post("/export-email", tags=["Phase 5 — Gmail Export"])
 def export_email(data: ExportData):
     try:
-        recipient = os.getenv("GMAIL_DRAFT_RECIPIENT")
-        subject = os.getenv("GMAIL_DRAFT_SUBJECT", "Weekly Product Pulse — Groww")
-        if not recipient:
-            raise ValueError("GMAIL_DRAFT_RECIPIENT not set in .env")
+        # 1. Determine recipients
+        default_recipient = os.getenv("GMAIL_DRAFT_RECIPIENT")
+        
+        if data.custom_recipients and data.custom_recipients.strip():
+            # Auth Check for custom recipients
+            required_pass = os.getenv("CUSTOM_EXPORT_PASSWORD")
+            if not required_pass:
+                raise HTTPException(status_code=500, detail="Server Error: CUSTOM_EXPORT_PASSWORD not configured.")
             
+            if data.custom_export_password != required_pass:
+                raise HTTPException(status_code=401, detail="Unauthorized: Incorrect Custom Export Password.")
+            
+            recipient = data.custom_recipients
+        else:
+            # No custom recipient -> Use default (no password required)
+            recipient = default_recipient
+            if not recipient:
+                raise ValueError("GMAIL_DRAFT_RECIPIENT not set in .env")
+
+        # 2. Prepare email
+        subject = os.getenv("GMAIL_DRAFT_SUBJECT", "Weekly Product Pulse — Groww")
         body = _build_export_text(data)
 
+        # 3. Export
         result = create_draft(recipient, subject, body)
         return result
+    except HTTPException as he:
+        raise he
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
